@@ -4,8 +4,8 @@ const app = express();
 const path = require('path');
 const router = express.Router();
 
-const hostname = '192.168.1.244'
-const port = 3000
+const hostname = '0.0.0.0'
+const port = process.env.PORT || 3000
 
 
 
