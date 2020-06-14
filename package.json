@@ -1,0 +1,26 @@
+{
+  "name": "punji",
+  "version": "1.0.0",
+  "description": "webble test",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/twonius/Punji.git"
+  },
+  "keywords": [
+    "webble"
+  ],
+  "author": "Anton Maes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/twonius/Punji/issues"
+  },
+  "homepage": "https://github.com/twonius/Punji#readme"
+}
