@@ -4,11 +4,6 @@ const app = express();
 const path = require('path');
 const router = express.Router();
 
-const hostname = '0.0.0.0'
-const port = process.env.PORT || 3000
-
-
-
 
 router.get('/',function(req,res){
   res.sendFile(path.join(__dirname+'/index.html'));
@@ -16,7 +11,7 @@ router.get('/',function(req,res){
 });
 
 app.use('/', router);
-app.listen(process.env.port || 3000);
+app.listen(process.env.PORT || 3000);
 
 function onButtonClick(){
   let filters = [];
