@@ -23,4 +23,8 @@
     "url": "https://github.com/twonius/Punji/issues"
   },
   "homepage": "https://github.com/twonius/Punji#readme"
+  "scripts": {
+    "start": "node app.js"
+  }
+
 }
