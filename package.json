@@ -5,11 +5,10 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.17.1"},
-  "scripts": {
-    "start": "node app.js"},
   "devDependencies": {},
   "scripts": {
-    "test": "node app.js"},
+    "test": "node app.js",
+    "start": "node app.js"},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/twonius/Punji.git"
