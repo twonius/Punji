@@ -4,12 +4,12 @@
   "description": "webble test",
   "main": "app.js",
   "dependencies": {
-    "express": "^4.17.1"
-  },
+    "express": "^4.17.1"},
+  "scripts": {
+    "start": "node app.js"},
   "devDependencies": {},
   "scripts": {
-    "test": "node app.js"
-  },
+    "test": "node app.js"},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/twonius/Punji.git"
@@ -23,8 +23,6 @@
     "url": "https://github.com/twonius/Punji/issues"
   },
   "homepage": "https://github.com/twonius/Punji#readme"
-  "scripts": {
-    "start": "node app.js"
-  }
+
 
 }
