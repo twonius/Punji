@@ -82,7 +82,7 @@
   }
 
   function handleChangedValue(event) {
-    let value = event.target.value.getUint8(1)
+    let value = event.target.value.getUint16(2)
     var now = new Date()
     console.log('> ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ' Heart Rate is ' + value)
   }
