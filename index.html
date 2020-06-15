@@ -3,7 +3,7 @@
 <button id="stop" disabled>Stop</button>
 
 <script>
-  var deviceName = 'BlueFruit52 HRM'
+  var deviceName = 'Bluefruit52 HRM'
   var bleService = 'heart_rate'
   var bleCharacteristic = 'heart_rate_measurement'
   var bluetoothDeviceDetected
@@ -50,7 +50,7 @@
     return (bluetoothDeviceDetected ? Promise.resolve() : getDeviceInfo())
     .then(connectGATT)
     .then(_ => {
-      console.log('Reading UV Index...')
+      console.log('Reading Heart Rate...')
       return gattCharacteristic.readValue()
     })
     .catch(error => {
