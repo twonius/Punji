@@ -50,8 +50,8 @@
     return (bluetoothDeviceDetected ? Promise.resolve() : getDeviceInfo())
     .then(connectGATT)
     .then(_ => {
-      console.log('Reading Heart Rate...')
-      return gattCharacteristic.readValue()
+      console.log('Reading Weight...')
+      return gattCharacteristic.startNotifications()
     })
     .catch(error => {
       console.log('Waiting to start reading: ' + error)
@@ -67,26 +67,37 @@
     .then(server => {
       console.log('Getting GATT Service...')
       return server.getPrimaryService(bleService)
+      console.log(bleservice)
     })
     .then(service => {
       console.log('Getting GATT Characteristic...')
       return service.getCharacteristic(bleCharacteristic)
+      console.log(bleCharacteristic)
     })
     .then(characteristic => {
       gattCharacteristic = characteristic
       gattCharacteristic.addEventListener('characteristicvaluechanged',
-          handleChangedValue)
+          handleNotifications)
       document.querySelector('#start').disabled = false
       document.querySelector('#stop').disabled = true
     })
   }
 
-  function handleChangedValue(event) {
-    let value = event.target.value.getUint16(2)
-    var now = new Date()
-    console.log('> ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ' Heart Rate is ' + value)
-  }
+  // function handleChangedValue(event) {
+  //   let value = event.target.value.getUint16(2)
+  //   var now = new Date()
+  //   console.log('> ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ' Heart Rate is ' + value)
+  // }
 
+//swapped in code from https://googlechrome.github.io/samples/web-bluetooth/notifications.html
+  function handleNotifications(event) {
+  let value = event.target.value;
+  let a = [];
+  // Convert raw data bytes to hex values just for the sake of showing something.
+  // In the "real" world, you'd use data.getUint8, data.getUint16 or even
+  // TextDecoder to process raw data bytes.
+  console.log(value.getUint16(0));
+}
   function start() {
     gattCharacteristic.startNotifications()
     .then(_ => {
