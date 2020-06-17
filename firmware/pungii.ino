@@ -129,7 +129,7 @@ void setupHRM(void)
  
   wsfc.setProperties(CHR_PROPS_READ);
   wsfc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  wsfc.setFixedLen(2);
+  wsfc.setFixedLen(1);
   wsfc.setCccdWriteCallback(cccd_callback);  // Optionally capture CCCD updates
   wsfc.begin();
   uint8_t weightfeaturedata[2] = { 0b00000000, 0x40 }; // Set the characteristic to use SI units, with time stamp present
@@ -155,7 +155,7 @@ void setupHRM(void)
   //    B10:11    = Unit16 - Height Imperial
   wmc.setProperties(CHR_PROPS_NOTIFY);
   wmc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  wmc.setFixedLen(2);
+  wmc.setFixedLen(6);
   wmc.setCccdWriteCallback(cccd_callback);  // Optionally capture CCCD updates
   wmc.begin();
   uint8_t weightdata[2] = { 0b00000000, 0x40 }; // Set the characteristic to use SI units, with time stamp present
@@ -214,8 +214,9 @@ void loop()
   digitalToggle(LED_RED);
   
   if ( Bluefruit.connected() ) {
-    uint8_t hrmdata[2] = { 0b00000000,weight++};           // Sensor connected, increment BPS value
-    
+    weight++;
+    uint8_t hrmdata[3] = {0b00000000,highByte(weight),lowByte(weight)};           // Sensor connected, increment BPS value
+    Serial.print("hrmdata: "); Serial.print(hrmdata[0]);Serial.print(" ");Serial.print(hrmdata[1]);Serial.print(" ");Serial.println(hrmdata[2]);
     // Note: We use .notify instead of .write!
     // If it is connected but CCCD is not enabled
     // The characteristic's value is still updated although notification is not sent
@@ -227,5 +228,5 @@ void loop()
   }
 
   // Only send update once per second
-  delay(1000);
+  delay(100);
 }
