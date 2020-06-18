@@ -1,6 +1,12 @@
-<button id="read">Connect with BLE device</button>
-<button id="start" disabled>Start</button>
-<button id="stop" disabled>Stop</button>
+<head>
+  <title>Punjii Scale Demo</title>
+</head>
+
+<body>
+  <button id="read">Connect with BLE device</button>
+  <button id="start" disabled>Start</button>
+  <button id="stop" disabled>Stop</button>
+  <div id="weightDisplay" class="container"></div>
 
 <script>
   var deviceName = 'Bluefruit52 WS'
@@ -96,7 +102,12 @@
   // Convert raw data bytes to hex values just for the sake of showing something.
   // In the "real" world, you'd use data.getUint8, data.getUint16 or even
   // TextDecoder to process raw data bytes.
-  console.log(value.getUint16(1));
+  var weightReading = value.getUint16(1)
+  console.log(weightReading);
+  var weightDisp = document.getElementById("weightDisplay")
+
+  weightDisp.textContent = weightReading
+
 }
   function start() {
     gattCharacteristic.startNotifications()
@@ -121,4 +132,6 @@
       console.log('[ERROR] Stop: ' + error)
     })
   }
+
 </script>
+</body>
