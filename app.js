@@ -1,20 +1,65 @@
 const http = require('http')
 const express = require('express');
-const app = express();
+const mongoose = require("mongoose");
+const passport = require("passport");
+var bodyParser = require("body-parser")
+var app = express();
+var methodOverride = require("method-override");
+var cookieParser = require("cookie-parser")
 const path = require('path');
 const router = express.Router();
+const sslRedirect = require('heroku-ssl-redirect');
+const WebSocketServer = require('websocket').server;
 
 
 
-router.get('/',function(req,res){
-  //res.sendFile(path.join(__dirname+'/index.html'));
-  res.sendFile(path.join(__dirname + '/index.html'));
-  //__dirname : It will resolve to your project folder.
+
+var indexRoutes = require("./routes/index");
+
+//assign mongoose a promise library and connect to a database
+mongoose.promise = global.Promises;
+const databaseUri = process.env.MONGODB_URI || 'mongodb://localhost/spot';
+
+mongoose.connect(databaseUri, {useNewUrlParser: true})
+  .then(() => console.log('database connected'))
+  .catch(err => console.log('Database conection error : ${err.message}') );
+
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine","ejs");
+app.use(express.static(__dirname+"/public"));
+app.use(methodOverride('_method'));
+app.use(cookieParser('secret'));
+//app.use(sslRedirect());
+
+app.locals.moment = require('moment');
+
+const port = process.env.PORT || 3000;
+const ip = process.env.IP;
+
+app.use('/', indexRoutes);
+app.listen(port,ip,function(){
+  console.log('server has started on ${ip} : ${port}');
 });
 
-app.use('/', router);
-app.listen(process.env.PORT || 3000);
 
+
+//setup websockeet
+const server = http.createServer();
+server.listen(9898);
+const wsServer = new WebSocketServer({
+    httpServer: server
+});
+wsServer.on('request', function(request) {
+    const connection = request.accept(null, request.origin);
+    connection.on('message', function(message) {
+      console.log('Received Message:', message.utf8Data);
+      connection.sendUTF('Hi this is WebSocket server!');
+    });
+    connection.on('close', function(reasonCode, description) {
+        console.log('Client has disconnected.');
+    });
+});
 
 function onButtonClick(){
   let filters = [];

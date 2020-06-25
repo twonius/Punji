@@ -1,0 +1,11 @@
+body{
+    background-color:  #f2f2f2;
+}
+
+#weightDisplay {
+  position: relative;
+  text-align: center;
+  font-family: "roboto"
+  padding-top: 10vh;
+  font-size: 50px;
+}
