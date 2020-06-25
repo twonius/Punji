@@ -3,6 +3,8 @@
 <head>
   <title>Spotter</title>
   <link href="/stylesheets/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">\
+    <meta content="width=device-width, initial scale 0.3" name="viewport">
 </head>
   <body>
     <section class="hero">
@@ -15,10 +17,12 @@
         </div>
       </section>
       <section>
-        <button id="read">Connect with BLE device</button>
-        <button id="start" disabled>Start</button>
-        <button id="stop" disabled>Stop</button>
-        <div id="weightDisplay" class="container"></div>
+        <div class="container text-center">
+          <button id="read" class="btn btn-outline-primary">Connect with BLE device</button>
+          <button id="start" class="btn btn-outline-primary" disabled>Start</button>
+          <button id="stop" class="btn btn-outline-primary" disabled>Stop</button>
+          <div id="weightDisplay" class="circle"> lbs</div>
+        </div>
       </section>
   </body>
   <script>

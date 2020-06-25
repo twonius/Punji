@@ -5,7 +5,17 @@ body{
 #weightDisplay {
   position: relative;
   text-align: center;
-  font-family: "roboto"
-  padding-top: 10vh;
+  font-family: "roboto";
   font-size: 50px;
+}
+
+.circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  font-size: 50px;
+  color: #ffffff;
+  line-height: 200px;
+  text-align: center;
+  background: #8c8c8c
 }
