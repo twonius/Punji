@@ -3,7 +3,6 @@ body{
 }
 
 #weightDisplay {
-  position: relative;
   text-align: center;
   font-family: "roboto";
   font-size: 50px;
@@ -17,5 +16,14 @@ body{
   color: #ffffff;
   line-height: 200px;
   text-align: center;
-  background: #8c8c8c
+  background: #8c8c8c;
+  margin: 20px auto
+}
+
+.circle-responsive {
+  background: #ddd;
+  border-radius: 50%;
+  height: 0;
+  padding-bottom: 100%;
+  width: 100%;
 }

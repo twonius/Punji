@@ -1,17 +1,17 @@
 <%- include ("./partials/header") %>
 
 <head>
-  <title>Spotter</title>
+  <title>Spot</title>
   <link href="/stylesheets/index.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">\
     <meta content="width=device-width, initial scale 0.3" name="viewport">
 </head>
-  <body>
+<body>
     <section class="hero">
         <div class="container text-center">
           <div class="row">
             <div class="col-md-12">
-              <h2>Spotter</h2>
+              <h2>Spotr</h2>
             </div>
           </div>
         </div>
@@ -21,11 +21,14 @@
           <button id="read" class="btn btn-outline-primary">Connect with BLE device</button>
           <button id="start" class="btn btn-outline-primary" disabled>Start</button>
           <button id="stop" class="btn btn-outline-primary" disabled>Stop</button>
-          <div id="weightDisplay" class="circle"> lbs</div>
+          <div id="weightDisplay" class="circle"></div>
         </div>
+      </div>
       </section>
-  </body>
-  <script>
+</body>
+  <script src="/scripts/app.js"></script>
+
+  <!-- <script>
     var deviceName = 'Bluefruit52 WS'
     var bleService = 'weight_scale'
     var bleCharacteristic = 'weight_measurement'
@@ -162,4 +165,4 @@
       })
     }
 
-  </script>
+  </script> -->
