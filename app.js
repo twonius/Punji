@@ -10,7 +10,7 @@ const path = require('path');
 const router = express.Router();
 const sslRedirect = require('heroku-ssl-redirect');
 const WebSocketServer = require('websocket').server;
-
+var sensorData = require("./models/sensorData");
 
 
 
@@ -39,7 +39,7 @@ const ip = process.env.IP;
 
 app.use('/', indexRoutes);
 app.listen(port,ip,function(){
-  console.log('server has started on ${ip} : ${port}');
+  console.log(`server has started on ${ip} : ${port}`);
 });
 
 
@@ -54,6 +54,10 @@ wsServer.on('request', function(request) {
     const connection = request.accept(null, request.origin);
     connection.on('message', function(message) {
       console.log('Received Message:', message.utf8Data);
+      sensorData.create({ reading : message.utf8Data }, function (err, awesome_instance) {
+        if (err){console.log(err)};
+        console.log('Data Saved');
+      });
       connection.sendUTF('Hi this is WebSocket server!');
     });
     connection.on('close', function(reasonCode, description) {

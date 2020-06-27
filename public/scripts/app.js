@@ -104,12 +104,14 @@ let a = [];
 // In the "real" world, you'd use data.getUint8, data.getUint16 or even
 // TextDecoder to process raw data bytes.
 var weightReading = value.getUint16(1)
+ws.send(weightReading); //send over websocket
 
 var weightDisp = document.getElementById("weightDisplay");
 var unit = " lbs";
 var weightReading_str = weightReading.toString();
 console.log(weightReading_str.concat(unit));
 weightDisp.textContent = weightReading_str.concat(unit);
+
 
 }
 function start() {
