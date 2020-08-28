@@ -112,6 +112,27 @@ var weightReading_str = weightReading.toString();
 console.log(weightReading_str.concat(unit));
 weightDisp.textContent = weightReading_str.concat(unit);
 
+Plotly.plot('chart',[{
+  y:weightReading,
+  type:'line'
+}]);
+
+var cnt = 0;
+
+setInterval(function() {
+Plotly.extendTraces('chart', { y: weightReading }, [0]);
+cnt++;
+
+if(cnt>500) {
+  Plotly.relayout('chart',{
+    xaxis: {
+    range: [cnt-500,cnt]
+   }
+});
+}
+}, 200);
+
+
 
 
 
