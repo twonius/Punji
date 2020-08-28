@@ -2,6 +2,7 @@ const http = require('http')
 const express = require('express');
 const mongoose = require("mongoose");
 const passport = require("passport");
+const plotly = require("Plotly");
 var bodyParser = require("body-parser")
 var app = express();
 var methodOverride = require("method-override");

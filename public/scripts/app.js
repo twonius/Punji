@@ -9,7 +9,7 @@ var gattCharacteristic
 const ws = new WebSocket('ws://localhost:9898/');
 ws.onopen = function() {
     console.log('WebSocket Client Connected');
-    ws.send('Hi this is web client.');
+    ws.send(9999);
 };
 ws.onmessage = function(e) {
   console.log("Received: '" + e.data + "'");
@@ -111,6 +111,8 @@ var unit = " lbs";
 var weightReading_str = weightReading.toString();
 console.log(weightReading_str.concat(unit));
 weightDisp.textContent = weightReading_str.concat(unit);
+
+
 
 
 }
