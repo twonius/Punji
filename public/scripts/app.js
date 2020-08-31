@@ -1,10 +1,11 @@
 
 
-var deviceName = 'Bluefruit52 WS'
+var deviceName = 'Spot WS'
 var bleService = 'weight_scale'
 var bleCharacteristic = 'weight_measurement'
 var bluetoothDeviceDetected
 var gattCharacteristic
+var weightData = new Array()
 
 const ws = new WebSocket('ws://localhost:9898/');
 ws.onopen = function() {
@@ -28,6 +29,11 @@ document.querySelector('#stop').addEventListener('click', function(event) {
   if (isWebBluetoothEnabled()) { stop() }
 })
 
+Plotly.plot('chart',[{
+  y:[],
+  type:'line'
+}]);
+
 function isWebBluetoothEnabled() {
   if (!navigator.bluetooth) {
     console.log('Web Bluetooth API is not available in this browser!')
@@ -39,10 +45,10 @@ function isWebBluetoothEnabled() {
 
 function getDeviceInfo() {
   let options = {
-    optionalServices: [bleService],
-    filters: [
-      { "name": deviceName }
-    ]
+    optionalServices: [bleService]
+  , filters: [
+     { "name": deviceName }
+  ]
   }
 
   console.log('Requesting any Bluetooth Device...')
@@ -104,6 +110,10 @@ let a = [];
 // In the "real" world, you'd use data.getUint8, data.getUint16 or even
 // TextDecoder to process raw data bytes.
 var weightReading = value.getUint16(1)
+
+// build array to plot
+weightData.push(weightReading);
+
 ws.send(weightReading); //send over websocket
 
 var weightDisp = document.getElementById("weightDisplay");
@@ -112,31 +122,20 @@ var weightReading_str = weightReading.toString();
 console.log(weightReading_str.concat(unit));
 weightDisp.textContent = weightReading_str.concat(unit);
 
-Plotly.plot('chart',[{
-  y:weightReading,
-  type:'line'
-}]);
 
-var cnt = 0;
+Plotly.extendTraces('chart', { y: [[weightReading]] }, [0]);
 
-setInterval(function() {
-Plotly.extendTraces('chart', { y: weightReading }, [0]);
-cnt++;
+cnt = weightData.length;
 
 if(cnt>500) {
   Plotly.relayout('chart',{
     xaxis: {
-    range: [cnt-500,cnt]
-   }
-});
+    range: [cnt-500,cnt]}
+  });
 }
-}, 200);
-
-
-
-
-
 }
+
+
 function start() {
   gattCharacteristic.startNotifications()
   .then(_ => {

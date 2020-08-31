@@ -1,0 +1,51 @@
+
+**** Build of configuration Debug for project IR Range Finder ****
+
+"C:\\ti\\ccs930\\ccs\\utils\\bin\\gmake" -k -j 4 all -O 
+ 
+Building file: "../main.c"
+Invoking: MSP430 Compiler
+"C:/ti/ccs930/ccs/tools/compiler/ti-cgt-msp430_20.2.0.LTS/bin/cl430" -vmsp --use_hw_mpy=16 --include_path="C:/ti/ccs930/ccs/ccs_base/msp430/include" --include_path="D:/Current Works/GP2Y0E03 Short Range IR Rangefinder Demo/IR Range Finder/Libraries" --include_path="D:/Current Works/GP2Y0E03 Short Range IR Rangefinder Demo/IR Range Finder" --include_path="C:/ti/ccs930/ccs/tools/compiler/ti-cgt-msp430_20.2.0.LTS/include" --advice:power=all --define=__MSP430F149__ -g --printf_support=minimal --diag_warning=225 --diag_wrap=off --display_error_number --preproc_with_compile --preproc_dependency="main.d_raw"  "../main.c"
+Finished building: "../main.c"
+ 
+Building target: "IR Range Finder.out"
+Invoking: MSP430 Linker
+"C:/ti/ccs930/ccs/tools/compiler/ti-cgt-msp430_20.2.0.LTS/bin/cl430" -vmsp --use_hw_mpy=16 --advice:power=all --define=__MSP430F149__ -g --printf_support=minimal --diag_warning=225 --diag_wrap=off --display_error_number -z -m"IR Range Finder.map" --heap_size=80 --stack_size=80 -i"C:/ti/ccs930/ccs/ccs_base/msp430/include" -i"C:/ti/ccs930/ccs/tools/compiler/ti-cgt-msp430_20.2.0.LTS/lib" -i"C:/ti/ccs930/ccs/tools/compiler/ti-cgt-msp430_20.2.0.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="IR Range Finder_linkInfo.xml" --use_hw_mpy=16 --rom_model -o "IR Range Finder.out" "./main.obj" "./Libraries/delay.obj" "./Libraries/lcd.obj" "./Libraries/lcd_print.obj" "../lnk_msp430f149.cmd"  -llibc.a 
+<Linking>
+"../main.c", line 27: remark #1528-D: (ULP 3.1) Detected flag polling using ADC12IFG. Recommend using an interrupt combined with enter LPMx and ISR
+"../main.c", line 24: remark #1544-D: (ULP 13.1) Detected loop counting up. Recommend loops count down as detecting zeros is easier
+"../main.c", line 99: remark #1527-D: (ULP 2.1) Detected SW delay loop using __delay_cycles. Recommend using a timer module instead
+"../main.c", line 35 (col. 11): remark #1531-D: (ULP 5.2) Detected floating point operation(s). Recommend moving them to RAM during run time or not using as these are processing/power intensive
+"../main.c", line 37 (col. 14): remark #1531-D: (ULP 5.2) Detected floating point operation(s). Recommend moving them to RAM during run time or not using as these are processing/power intensive
+"../main.c", line 39 (col. 15): remark #1531-D: (ULP 5.2) Detected floating point operation(s). Recommend moving them to RAM during run time or not using as these are processing/power intensive
+"../main.c", line 42 (col. 14): remark #1531-D: (ULP 5.2) Detected floating point operation(s). Recommend moving them to RAM during run time or not using as these are processing/power intensive
+"../main.c", line 44 (col. 15): remark #1531-D: (ULP 5.2) Detected floating point operation(s). Recommend moving them to RAM during run time or not using as these are processing/power intensive
+"../main.c", line 47 (col. 16): remark #1531-D: (ULP 5.2) Detected floating point operation(s). Recommend moving them to RAM during run time or not using as these are processing/power intensive
+remark #10371-D: (ULP 1.1) Detected no uses of low power mode state changing instructions
+Finished building target: "IR Range Finder.out"
+ 
+Building files: "IR Range Finder.out"
+Invoking: MSP430 Hex Utility
+"C:/ti/ccs930/ccs/tools/compiler/ti-cgt-msp430_20.2.0.LTS/bin/hex430" --memwidth=8 --romwidth=8 --intel -o "IR Range Finder.hex"  "IR Range Finder.out" 
+Translating to Intel format...
+   "IR Range Finder.out" .text ==> .text
+   "IR Range Finder.out" .const ==> .const
+   "IR Range Finder.out" PORT2 ==> PORT2
+   "IR Range Finder.out" USART1TX ==> USART1TX
+   "IR Range Finder.out" USART1RX ==> USART1RX
+   "IR Range Finder.out" PORT1 ==> PORT1
+   "IR Range Finder.out" TIMERA1 ==> TIMERA1
+   "IR Range Finder.out" TIMERA0 ==> TIMERA0
+   "IR Range Finder.out" ADC12 ==> ADC12
+   "IR Range Finder.out" USART0TX ==> USART0TX
+   "IR Range Finder.out" USART0RX ==> USART0RX
+   "IR Range Finder.out" WDT ==> WDT
+   "IR Range Finder.out" COMPARATORA ==> COMPARATORA
+   "IR Range Finder.out" TIMERB1 ==> TIMERB1
+   "IR Range Finder.out" TIMERB0 ==> TIMERB0
+   "IR Range Finder.out" NMI ==> NMI
+   "IR Range Finder.out" .reset ==> .reset
+Finished building: "IR Range Finder.out"
+ 
+
+**** Build Finished ****
