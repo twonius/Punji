@@ -1,1 +1,0 @@
-"./main.obj" "./Libraries/delay.obj" "./Libraries/lcd.obj" "./Libraries/lcd_print.obj" "../lnk_msp430f149.cmd" -llibc.a 

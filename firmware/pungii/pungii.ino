@@ -15,7 +15,7 @@
 
 
 // initialize Data buffer https://helloacm.com/how-do-you-design-a-circular-fifo-buffer-queue-in-c/
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 20000
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
@@ -94,7 +94,7 @@ void setup()
   Bluefruit.begin();
 
   // Set the advertised device name (keep it short!)
-  Serial.println("Setting Device Name to 'Feather52 WS'");
+  Serial.println("Setting Device Name to 'Spot WS'");
   Bluefruit.setName("Spot WS");
 
   // Set the connect/disconnect callback handlers
@@ -104,7 +104,7 @@ void setup()
   // Configure and Start the Device Information Service
   Serial.println("Configuring the Device Information Service");
   bledis.setManufacturer("Adafruit Industries");
-  bledis.setModel("Bluefruit Feather52");
+  bledis.setModel("Spot WS");
   bledis.begin();
 
   // Start the BLE Battery Service and set it to 100%
@@ -123,6 +123,7 @@ void setup()
 
   Serial.println("Ready Player One!!!");
   Serial.println("\nAdvertising");
+  delay(5000); // BAD PROGRAMMING, should use callback to say when notifications are ready 
 }
 
 void startAdv(void)
@@ -363,6 +364,10 @@ bool bufferEmpty(){
      else{return false;}
 }
 
+int bufferLength(){
+  return head-tail;
+}
+
 
 
 void loop()
@@ -373,7 +378,7 @@ void loop()
       bleCTime.getCurrentTime();
       bleCTime.getLocalTimeInfo();
       Serial.printf(" %02d:%02d:%02d\n", bleCTime.Time.hour, bleCTime.Time.minute, bleCTime.Time.second);
-     
+      //delay(5000); //reallly shoudl use the CCCD callback to see when notification is enabled 
 
     //uint8_t hrmdata[3] = {0b00000010,highByte(weight),lowByte(weight)};// Sensor connected, increment BPS value
     
@@ -382,15 +387,20 @@ void loop()
     // Note: We use .notify instead of .write!
     // If it is connected but CCCD is not enabled
     // The characteristic's value is still updated although notification is not sent
-    while(!bufferEmpty()){
-      notification = fifoRead();
-      if ( wmc.notify(notification, sizeof(notification)) ){
-        Serial.println("Weight Measurement updated"); 
-      }else{
-        Serial.println("ERROR: Notify not set in the CCCD or not connected!");
-      }
-    delay(1); 
-    };
+    
+    if(wmc.notifyEnabled()){
+      while(!bufferEmpty()){
+        notification = fifoRead();
+        Serial.printf("buffer length: %u", bufferLength()); 
+  
+        if ( wmc.notify(notification, sizeof(notification)) ){
+          Serial.println("Weight Measurement updated"); 
+        }else{
+          Serial.println("ERROR: Notify not set in the CCCD or not connected!");
+        }
+      
+      };
+    }
    // update battery status
 
     float vbat_mv = readVBAT();
@@ -403,7 +413,9 @@ void loop()
     Serial.println(vbat_per);
   
   }
-    // turn on sensor
+    
+
+         // turn on sensor
     digitalWrite(13,HIGH);
     delay(100); // wait for system startup
     // moving average code 
@@ -425,12 +437,18 @@ void loop()
         delay(1);
       }
   // calculate the average:
-  weight = total / numReadings;
+      weight = total / numReadings;
+      uint8_t package[6]  = {0b00000010,highByte(weight),lowByte(weight),0,0,0};
+      fifoWrite(package); //write values to the buffer
+  
+  
+  Serial.print("Buffer Length: "); 
+  Serial.println(bufferLength());  
+ 
 
   digitalWrite(13,LOW); // turn off the sensor  
-  
-  uint8_t package[6]  = {0b00000010,highByte(weight),lowByte(weight),0,0,0};
-  fifoWrite(package); //write values to the buffer
+
+
 
   // Only send update once per 10 seconds
   // this is where better sleep logic would come in

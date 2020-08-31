@@ -3,6 +3,8 @@
 var deviceName = 'Spot WS'
 var bleService = 'weight_scale'
 var bleCharacteristic = 'weight_measurement'
+var batteryService = 'battery_service'
+var batteryCharacteristic = 'battery_level'
 var bluetoothDeviceDetected
 var gattCharacteristic
 var weightData = new Array()
