@@ -143,7 +143,7 @@ async function readBattery(){
 
 function handleBattery(event) {
   battStatus = event.target.value.getUint8(0)
-  console.log('Battery Percen Updatedt: ' + battStatus.toString() + '%');
+  console.log('Battery Percent Updated: ' + battStatus.toString() + '%');
 }
 
 //swapped in code from https://googlechrome.github.io/samples/web-bluetooth/notifications.html
