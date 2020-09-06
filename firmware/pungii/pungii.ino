@@ -138,6 +138,10 @@ void startAdv(void)
   // include CT Service UUID
   Bluefruit.Advertising.addService(bleCTime);
 
+  
+  // include Battery Service UUID
+  Bluefruit.Advertising.addService(blebas);
+
   // Include Name
   Bluefruit.Advertising.addName();
 
@@ -391,7 +395,7 @@ void loop()
     if(wmc.notifyEnabled()){
       while(!bufferEmpty()){
         notification = fifoRead();
-        Serial.printf("buffer length: %u", bufferLength()); 
+        Serial.printf("buffer length: %u \n", bufferLength()); 
   
         if ( wmc.notify(notification, sizeof(notification)) ){
           Serial.println("Weight Measurement updated"); 

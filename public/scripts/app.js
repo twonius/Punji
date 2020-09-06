@@ -1,12 +1,16 @@
 
 
 var deviceName = 'Spot WS'
-var bleService = 'weight_scale'
-var bleCharacteristic = 'weight_measurement'
-var batteryService = 'battery_service'
-var batteryCharacteristic = 'battery_level'
+var wsService = 'weight_scale'
+var wsCharacteristic = 'weight_measurement'
+var battService = 'battery_service'
+var battCharacteristic = 'battery_level'
 var bluetoothDeviceDetected
 var gattCharacteristic
+var weightCharacteristic
+var battCharacteristic
+var battStatus
+
 var weightData = new Array()
 
 const ws = new WebSocket('ws://localhost:9898/');
@@ -15,7 +19,7 @@ ws.onopen = function() {
     ws.send(9999);
 };
 ws.onmessage = function(e) {
-  console.log("Received: '" + e.data + "'");
+  //console.log("Received: '" + e.data + "'");
 };
 
 
@@ -47,10 +51,11 @@ function isWebBluetoothEnabled() {
 
 function getDeviceInfo() {
   let options = {
-    optionalServices: [bleService]
-  , filters: [
-     { "name": deviceName }
-  ]
+
+    filters: [
+     { "name": deviceName,
+     services: ['weight_scale','battery_service']
+  }]
   }
 
   console.log('Requesting any Bluetooth Device...')
@@ -63,49 +68,88 @@ function getDeviceInfo() {
 
 function read() {
   return (bluetoothDeviceDetected ? Promise.resolve() : getDeviceInfo())
-  .then(connectGATT)
+  .then(connectGATTAsync)
   .then(_ => {
-    console.log('Reading Weight...')
-    return gattCharacteristic.startNotifications()
+    //console.log('Reading Weight...')
+    return weightCharacteristic.startNotifications()
   })
   .catch(error => {
     console.log('Waiting to start reading: ' + error)
   })
 }
 
-function connectGATT() {
-  if (bluetoothDeviceDetected.gatt.connected && gattCharacteristic) {
-    return Promise.resolve()
-  }
+// function connectGATT() {
+//   if (bluetoothDeviceDetected.gatt.connected && gattCharacteristic) {
+//     return Promise.resolve()
+//   }
+//
+//   return bluetoothDeviceDetected.gatt.connect()
+//   .then(server => {
+//     console.log('Getting GATT Service...')
+//     return server.getPrimaryService(wsService)
+//     console.log(wsService)
+//   })
+//   .then(service => {
+//     console.log('Getting GATT Characteristic...')
+//     return service.getCharacteristic(wsCharacteristic)
+//     console.log(wsCharacteristic)
+//   })
+//   .then(characteristic => {
+//     gattCharacteristic = characteristic
+//     gattCharacteristic.addEventListener('characteristicvaluechanged',
+//         handleNotifications)
+//     document.querySelector('#start').disabled = false
+//     document.querySelector('#stop').disabled = true
+//   })
+// }
 
-  return bluetoothDeviceDetected.gatt.connect()
-  .then(server => {
-    console.log('Getting GATT Service...')
-    return server.getPrimaryService(bleService)
-    console.log(bleservice)
-  })
-  .then(service => {
-    console.log('Getting GATT Characteristic...')
-    return service.getCharacteristic(bleCharacteristic)
-    console.log(bleCharacteristic)
-  })
-  .then(characteristic => {
-    gattCharacteristic = characteristic
-    gattCharacteristic.addEventListener('characteristicvaluechanged',
-        handleNotifications)
-    document.querySelector('#start').disabled = false
-    document.querySelector('#stop').disabled = true
-  })
+async function connectGATTAsync() {
+  try {
+
+
+    const server = await bluetoothDeviceDetected.gatt.connect();
+    console.log('Connecting to GATT Server...');
+
+    console.log('Getting Battery Service...');
+    const batteryService = await server.getPrimaryService(battService);
+
+    console.log('Getting Battery Level Characteristic...');
+    batteryCharacteristic = await batteryService.getCharacteristic(battCharacteristic);
+
+    console.log('Getting Weight Service...');
+    const weightService = await server.getPrimaryService(wsService);
+
+    console.log('Getting Weight Measurement Characteristic...');
+    weightCharacteristic = await weightService.getCharacteristic(wsCharacteristic);
+
+
+
+    weightCharacteristic.addEventListener('characteristicvaluechanged',handleNotifications);
+
+    batteryCharacteristic.addEventListener('characteristicvaluechanged',handleBattery);
+
+
+}catch(error) {
+    console.log('Argh! ' + error);
+  }
 }
 
-// function handleChangedValue(event) {
-//   let value = event.target.value.getUint16(2)
-//   var now = new Date()
-//   console.log('> ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ' Heart Rate is ' + value)
-// }
+async function readBattery(){
+  const value = await batteryCharacteristic.readValue();
+
+  console.log('> Battery Level is ' + value.getUint8(0) + '%');
+
+}
+
+function handleBattery(event) {
+  battStatus = event.target.value.getUint8(0)
+  console.log('Battery Percen Updatedt: ' + battStatus.toString() + '%');
+}
 
 //swapped in code from https://googlechrome.github.io/samples/web-bluetooth/notifications.html
 function handleNotifications(event) {
+
+//console.log('notification Received')
 let value = event.target.value;
 let a = [];
 // Convert raw data bytes to hex values just for the sake of showing something.
@@ -119,9 +163,10 @@ weightData.push(weightReading);
 ws.send(weightReading); //send over websocket
 
 var weightDisp = document.getElementById("weightDisplay");
-var unit = " lbs";
+var unit = "";
 var weightReading_str = weightReading.toString();
-console.log(weightReading_str.concat(unit));
+
+//console.log('weight: ' + weightReading_str);
 weightDisp.textContent = weightReading_str.concat(unit);
 
 
@@ -139,7 +184,7 @@ if(cnt>500) {
 
 
 function start() {
-  gattCharacteristic.startNotifications()
+  weightCharacteristic.startNotifications()
   .then(_ => {
     console.log('Start reading...')
     document.querySelector('#start').disabled = true
@@ -151,7 +196,7 @@ function start() {
 }
 
 function stop() {
-  gattCharacteristic.stopNotifications()
+  weightCharacteristic.stopNotifications()
   .then(_ => {
     console.log('Stop reading...')
     document.querySelector('#start').disabled = false
