@@ -12,6 +12,7 @@
  any redistribution
 *********************************************************************/
 #include <bluefruit.h>
+#include "RTClib.h"
 
 
 // initialize Data buffer https://helloacm.com/how-do-you-design-a-circular-fifo-buffer-queue-in-c/
@@ -19,12 +20,16 @@
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-uint8_t buffer[BUFFER_SIZE][6]; //lenght needs to be 6 to include timestamp
+const int packageSize = 9;
+uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 
 uint8_t *notification;
 
-
+//setup real time clock
+RTC_PCF8523 rtc;
+uint32_t tstamp;
+//char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 // moving average setup 
 const int numReadings = 10;
@@ -75,9 +80,9 @@ void setup()
   //while ( !Serial ) delay(10);   // for nrf52840 with native usb
 
   analogReadResolution(14); // Can be 8, 10, 12 or 14
-
   readVBAT();
 
+  setupRTC(); 
   
 
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
@@ -161,6 +166,46 @@ void startAdv(void)
   Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
 }
 
+void setupRTC(void){
+  #ifndef ESP8266
+  while (!Serial); // wait for serial port to connect. Needed for native USB
+#endif
+
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    abort();
+  }
+
+  if (! rtc.initialized() || rtc.lostPower()) {
+    Serial.println("RTC is NOT initialized, let's set the time!");
+    // When time needs to be set on a new device, or after a power loss, the
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+    //
+    // Note: allow 2 seconds after inserting battery or applying external power
+    // without battery before calling adjust(). This gives the PCF8523's
+    // crystal oscillator time to stabilize. If you call adjust() very quickly
+    // after the RTC is powered, lostPower() may still return true.
+  }
+
+  // When time needs to be re-set on a previously configured device, the
+  // following line sets the RTC to the date & time this sketch was compiled
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // This line sets the RTC with an explicit date & time, for example to set
+  // January 21, 2014 at 3am you would call:
+  // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+
+  // When the RTC was stopped and stays connected to the battery, it has
+  // to be restarted by clearing the STOP bit. Let's do this to ensure
+  // the RTC is running.
+  rtc.start();
+  
+}
+
 void setupHRM(void)
 {
   // Configure the Weight Scale service
@@ -195,7 +240,7 @@ void setupHRM(void)
   wsfc.setFixedLen(1);
   wsfc.setCccdWriteCallback(cccd_callback);  // Optionally capture CCCD updates
   wsfc.begin();
-  uint8_t weightfeaturedata[2] = { 0b00000000, 0x40 }; // Set the characteristic to use SI units, with time stamp present
+  uint8_t weightfeaturedata[2] = { 0b00000001, 0x40 }; // Set the characteristic to use SI units, with time stamp present
   wsfc.write(weightfeaturedata, 2);
   
 
@@ -218,10 +263,10 @@ void setupHRM(void)
   //    B10:11    = Unit16 - Height Imperial
   wmc.setProperties(CHR_PROPS_NOTIFY);
   wmc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  wmc.setFixedLen(6);
+  wmc.setFixedLen(packageSize);
   wmc.setCccdWriteCallback(cccd_callback);  // Optionally capture CCCD updates
   wmc.begin();
-  uint8_t weightdata[2] = { 0b00000000, 0x40 }; // Set the characteristic to use SI units, with time stamp present
+  uint8_t weightdata[2] = { 0b00001110, 0x40 }; // Set the characteristic to use SI units, with time stamp present
   wmc.write(weightdata, 2);
 
 
@@ -341,19 +386,19 @@ void fifoWrite(u_int8_t *val) {
    
    if (head + 1 == tail) ;
     head = (head + 1) % BUFFER_SIZE;
-   for(i = 0; i < sizeof(val) ; i++){
+   for(i = 0; i < packageSize ; i++){
       buffer[head][i]= *(val+i);
    }
 }
 
 u_int8_t * fifoRead() {
-   static u_int8_t row[6]; 
+   static u_int8_t row[packageSize]; 
    int i; 
    
    if (head == tail);
    tail = (tail + 1) % BUFFER_SIZE;
 
-   for(i=0; i<6;i++){ 
+   for(i=0; i<packageSize;i++){ 
       row[i] = buffer[tail][i];
     };
    
@@ -372,10 +417,17 @@ int bufferLength(){
   return head-tail;
 }
 
-
+void printArray(uint8_t *ptr, size_t length)           
+{         
+    //for statement to print values using array             
+    size_t i = 0;
+    for( ; i < length; ++i )      
+    printf("%d", ptr[i]);        
+}  
 
 void loop()
 {
+  
   digitalToggle(LED_RED);
   
   if ( Bluefruit.connected() ) {
@@ -394,9 +446,18 @@ void loop()
     
     if(wmc.notifyEnabled()){
       while(!bufferEmpty()){
+        int i=0;
+        
         notification = fifoRead();
         Serial.printf("buffer length: %u \n", bufferLength()); 
-  
+        
+        Serial.print("Notification: ");
+        for(i=0;i<packageSize;i++){
+        Serial.print(*(notification+i),HEX);
+        }
+        Serial.println("");
+        
+        
         if ( wmc.notify(notification, sizeof(notification)) ){
           Serial.println("Weight Measurement updated"); 
         }else{
@@ -413,8 +474,8 @@ void loop()
     uint8_t vbat_per = mvToPercent(vbat_mv);
 
     blebas.write(vbat_per);
-    Serial.print("Battery Level: "); 
-    Serial.println(vbat_per);
+//    Serial.print("Battery Level: "); 
+//    Serial.println(vbat_per);
   
   }
     
@@ -440,9 +501,23 @@ void loop()
         }
         delay(1);
       }
-  // calculate the average:
+      // calculate the average:
       weight = total / numReadings;
-      uint8_t package[6]  = {0b00000010,highByte(weight),lowByte(weight),0,0,0};
+
+      //get unix timestamp 
+      DateTime now = rtc.now();
+      tstamp = now.unixtime();
+      Serial.print("Unix Timestamp: ");
+      Serial.println(tstamp,HEX);
+
+
+      
+      //build package
+      uint8_t package[packageSize]  = {0b00000010,highByte(weight),lowByte(weight),0,0,tstamp >> 24,tstamp >> 16,tstamp >> 8,tstamp};
+
+     
+
+      //write package to buffer
       fifoWrite(package); //write values to the buffer
   
   
@@ -457,5 +532,5 @@ void loop()
   // Only send update once per 10 seconds
   // this is where better sleep logic would come in
 
-  delay(500);
+  delay(5000);
 }

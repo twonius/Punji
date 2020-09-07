@@ -126,7 +126,7 @@ async function connectGATTAsync() {
 
     weightCharacteristic.addEventListener('characteristicvaluechanged',handleNotifications);
 
-    batteryCharacteristic.addEventListener('characteristicvaluechanged',handleBattery);
+    //batteryCharacteristic.addEventListener('characteristicvaluechanged',handleBattery);
 
 
 }catch(error) {
@@ -146,16 +146,38 @@ function handleBattery(event) {
   console.log('Battery Percent Updated: ' + battStatus.toString() + '%');
 }
 
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp * 1000);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
+}
+
 //swapped in code from https://googlechrome.github.io/samples/web-bluetooth/notifications.html
 function handleNotifications(event) {
 
 //console.log('notification Received')
 let value = event.target.value;
-let a = [];
+
 // Convert raw data bytes to hex values just for the sake of showing something.
 // In the "real" world, you'd use data.getUint8, data.getUint16 or even
 // TextDecoder to process raw data bytes.
 var weightReading = value.getUint16(1)
+var byte1 = value.getUint8(3)
+var byte2 = value.getUint8(4)
+var byte3 = value.getUint8(5)
+var byte4 = value.getUint8(6)
+var byte5 = value.getUint8(7)
+var byte6 = value.getUint8(8)
+console.log(weightReading.toString(16)+byte1.toString(16)+ byte2.toString(16)+ byte3.toString(16) + byte4.toString(16) + byte5.toString(16) + byte6.toString(16))
+//console.log(timeConverter(unix_timestamp));
+
 
 // build array to plot
 weightData.push(weightReading);
@@ -180,6 +202,8 @@ if(cnt>500) {
     range: [cnt-500,cnt]}
   });
 }
+readBattery()
+
 }
 
 
