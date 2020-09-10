@@ -140,6 +140,7 @@ function handleNotifications(event) {
   weightData.push(weightReading);
 
   msg = {
+    user: 999,
     weight: weightReading,
     time: tstamp,
     battery: battStatus
