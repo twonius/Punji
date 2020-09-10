@@ -54,11 +54,13 @@ const wsServer = new WebSocketServer({
 wsServer.on('request', function(request) {
     const connection = request.accept(null, request.origin);
     connection.on('message', function(message) {
-      console.log('Received Message:', message.utf8Data);
-      reading = new sensorData({reading : message.utf8Data});
-      reading.save(function (err, point) {
-      if (err) return console.error(err);
-    });
+      msg = JSON.parse(message.utf8Data);
+      console.log('Received Message:', msg);
+
+    //   reading = new sensorData({reading : message.utf8Data});
+    //   reading.save(function (err, point) {
+    //   if (err) return console.error(err);
+    // });
       connection.sendUTF('Hi this is WebSocket server!');
     });
     connection.on('close', function(reasonCode, description) {

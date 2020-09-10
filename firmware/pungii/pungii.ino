@@ -20,7 +20,7 @@
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-const int packageSize = 9;
+const int packageSize = 7;
 uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 
@@ -427,60 +427,7 @@ void printArray(uint8_t *ptr, size_t length)
 
 void loop()
 {
-  
-  digitalToggle(LED_RED);
-  
-  if ( Bluefruit.connected() ) {
-      bleCTime.getCurrentTime();
-      bleCTime.getLocalTimeInfo();
-      Serial.printf(" %02d:%02d:%02d\n", bleCTime.Time.hour, bleCTime.Time.minute, bleCTime.Time.second);
-      //delay(5000); //reallly shoudl use the CCCD callback to see when notification is enabled 
-
-    //uint8_t hrmdata[3] = {0b00000010,highByte(weight),lowByte(weight)};// Sensor connected, increment BPS value
-    
-    
-    //Serial.print("hrmdata: "); Serial.print(hrmdata[0]);Serial.print(" ");Serial.print(hrmdata[1]);Serial.print(" ");Serial.println(hrmdata[2]);
-    // Note: We use .notify instead of .write!
-    // If it is connected but CCCD is not enabled
-    // The characteristic's value is still updated although notification is not sent
-    
-    if(wmc.notifyEnabled()){
-      while(!bufferEmpty()){
-        int i=0;
-        
-        notification = fifoRead();
-        Serial.printf("buffer length: %u \n", bufferLength()); 
-        
-        Serial.print("Notification: ");
-        for(i=0;i<packageSize;i++){
-        Serial.print(*(notification+i),HEX);
-        }
-        Serial.println("");
-        
-        
-        if ( wmc.notify(notification, sizeof(notification)) ){
-          Serial.println("Weight Measurement updated"); 
-        }else{
-          Serial.println("ERROR: Notify not set in the CCCD or not connected!");
-        }
-      
-      };
-    }
-   // update battery status
-
-    float vbat_mv = readVBAT();
-
-     // Convert from raw mv to percentage (based on LIPO chemistry)
-    uint8_t vbat_per = mvToPercent(vbat_mv);
-
-    blebas.write(vbat_per);
-//    Serial.print("Battery Level: "); 
-//    Serial.println(vbat_per);
-  
-  }
-    
-
-         // turn on sensor
+    // turn on sensor
     digitalWrite(13,HIGH);
     delay(100); // wait for system startup
     // moving average code 
@@ -510,15 +457,14 @@ void loop()
       Serial.print("Unix Timestamp: ");
       Serial.println(tstamp,HEX);
 
-
+  
+      //flags = 0b00000010 // Include time. SI units
       
       //build package
-      uint8_t package[packageSize]  = {0b00000010,highByte(weight),lowByte(weight),0,0,tstamp >> 24,tstamp >> 16,tstamp >> 8,tstamp};
-
-     
+      uint8_t packet[packageSize]  = {0b00000010,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp};
 
       //write package to buffer
-      fifoWrite(package); //write values to the buffer
+      fifoWrite(packet); //write values to the buffer
   
   
   Serial.print("Buffer Length: "); 
@@ -527,10 +473,58 @@ void loop()
 
   digitalWrite(13,LOW); // turn off the sensor  
 
+  
+  if ( Bluefruit.connected() ) {
+      bleCTime.getCurrentTime();
+      bleCTime.getLocalTimeInfo();
+      Serial.printf(" %02d:%02d:%02d\n", bleCTime.Time.hour, bleCTime.Time.minute, bleCTime.Time.second);
+      //delay(5000); //reallly shoudl use the CCCD callback to see when notification is enabled 
+
+    //uint8_t hrmdata[3] = {0b00000010,highByte(weight),lowByte(weight)};// Sensor connected, increment BPS value
+    
+    
+    //Serial.print("hrmdata: "); Serial.print(hrmdata[0]);Serial.print(" ");Serial.print(hrmdata[1]);Serial.print(" ");Serial.println(hrmdata[2]);
+    // Note: We use .notify instead of .write!
+    // If it is connected but CCCD is not enabled
+    // The characteristic's value is still updated although notification is not sent
+    
+    if(wmc.notifyEnabled()){
+      while(!bufferEmpty()){
+        int i=0;
+        
+        notification = fifoRead();
+        Serial.printf("buffer length: %u \n", bufferLength()); 
+        
+        Serial.print("Notification: ");
+        for(i=0;i<packageSize;i++){
+        Serial.print(*(notification+i),HEX);
+        }
+        Serial.println("");
+        
+
+        if ( wmc.notify(notification, packageSize) ){
+          Serial.println("Weight Measurement updated"); 
+        }else{
+          Serial.println("ERROR: Notify not set in the CCCD or not connected!");
+        }
+      
+      };
+    }
+ 
+   // update battery status
+
+    float vbat_mv = readVBAT();
+
+     // Convert from raw mv to percentage (based on LIPO chemistry)
+    uint8_t vbat_per = mvToPercent(vbat_mv);
+
+    blebas.write(vbat_per);
+  
+  }
 
 
   // Only send update once per 10 seconds
   // this is where better sleep logic would come in
 
-  delay(5000);
+  delay(30000);
 }

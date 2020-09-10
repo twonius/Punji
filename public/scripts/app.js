@@ -9,14 +9,14 @@ var bluetoothDeviceDetected
 var gattCharacteristic
 var weightCharacteristic
 var battCharacteristic
-var battStatus
+var battStatus = 999
 
 var weightData = new Array()
 
 const ws = new WebSocket('ws://localhost:9898/');
 ws.onopen = function() {
     console.log('WebSocket Client Connected');
-    ws.send(9999);
+
 };
 ws.onmessage = function(e) {
   //console.log("Received: '" + e.data + "'");
@@ -78,30 +78,7 @@ function read() {
   })
 }
 
-// function connectGATT() {
-//   if (bluetoothDeviceDetected.gatt.connected && gattCharacteristic) {
-//     return Promise.resolve()
-//   }
-//
-//   return bluetoothDeviceDetected.gatt.connect()
-//   .then(server => {
-//     console.log('Getting GATT Service...')
-//     return server.getPrimaryService(wsService)
-//     console.log(wsService)
-//   })
-//   .then(service => {
-//     console.log('Getting GATT Characteristic...')
-//     return service.getCharacteristic(wsCharacteristic)
-//     console.log(wsCharacteristic)
-//   })
-//   .then(characteristic => {
-//     gattCharacteristic = characteristic
-//     gattCharacteristic.addEventListener('characteristicvaluechanged',
-//         handleNotifications)
-//     document.querySelector('#start').disabled = false
-//     document.querySelector('#stop').disabled = true
-//   })
-// }
+
 
 async function connectGATTAsync() {
   try {
@@ -126,7 +103,6 @@ async function connectGATTAsync() {
 
     weightCharacteristic.addEventListener('characteristicvaluechanged',handleNotifications);
 
-    //batteryCharacteristic.addEventListener('characteristicvaluechanged',handleBattery);
 
 
 }catch(error) {
@@ -136,73 +112,60 @@ async function connectGATTAsync() {
 
 async function readBattery(){
   const value = await batteryCharacteristic.readValue();
-
-  console.log('> Battery Level is ' + value.getUint8(0) + '%');
+  battStatus = value.getUint8(0)
+  console.log('> Battery Level is ' + battStatus + '%');
 
 }
 
-function handleBattery(event) {
-  battStatus = event.target.value.getUint8(0)
-  console.log('Battery Percent Updated: ' + battStatus.toString() + '%');
-}
 
-function timeConverter(UNIX_timestamp){
-  var a = new Date(UNIX_timestamp * 1000);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var year = a.getFullYear();
-  var month = months[a.getMonth()];
-  var date = a.getDate();
-  var hour = a.getHours();
-  var min = a.getMinutes();
-  var sec = a.getSeconds();
-  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-  return time;
-}
 
 //swapped in code from https://googlechrome.github.io/samples/web-bluetooth/notifications.html
 function handleNotifications(event) {
 
-//console.log('notification Received')
-let value = event.target.value;
+  //console.log('notification Received')
+  let value = event.target.value;
 
-// Convert raw data bytes to hex values just for the sake of showing something.
-// In the "real" world, you'd use data.getUint8, data.getUint16 or even
-// TextDecoder to process raw data bytes.
-var weightReading = value.getUint16(1)
-var byte1 = value.getUint8(3)
-var byte2 = value.getUint8(4)
-var byte3 = value.getUint8(5)
-var byte4 = value.getUint8(6)
-var byte5 = value.getUint8(7)
-var byte6 = value.getUint8(8)
-console.log(weightReading.toString(16)+byte1.toString(16)+ byte2.toString(16)+ byte3.toString(16) + byte4.toString(16) + byte5.toString(16) + byte6.toString(16))
-//console.log(timeConverter(unix_timestamp));
+  // Convert raw data bytes to hex values just for the sake of showing something.
+  // In the "real" world, you'd use data.getUint8, data.getUint16 or even
+  // TextDecoder to process raw data bytes.
+  var setup = value.getUint8()
+  var weightReading = value.getUint16(1)
+  var tstamp = value.getUint32(3)
+
+  console.log(tstamp.toString(16))
+  //console.log(timeConverter(unix_timestamp));
 
 
-// build array to plot
-weightData.push(weightReading);
+  // build array to plot
+  weightData.push(weightReading);
 
-ws.send(weightReading); //send over websocket
+  msg = {
+    weight: weightReading,
+    time: tstamp,
+    battery: battStatus
+  }
+  ws.send(JSON.stringify(msg)); //send over websocket
 
-var weightDisp = document.getElementById("weightDisplay");
-var unit = "";
-var weightReading_str = weightReading.toString();
+  var weightDisp = document.getElementById("weightDisplay");
+  var unit = "";
+  var weightReading_str = weightReading.toString();
 
-//console.log('weight: ' + weightReading_str);
-weightDisp.textContent = weightReading_str.concat(unit);
+  //console.log('weight: ' + weightReading_str);
+  weightDisp.textContent = weightReading_str.concat(unit);
 
 
-Plotly.extendTraces('chart', { y: [[weightReading]] }, [0]);
+  Plotly.extendTraces('chart', { y: [[weightReading]] }, [0]);
 
-cnt = weightData.length;
+  cnt = weightData.length;
 
-if(cnt>500) {
-  Plotly.relayout('chart',{
-    xaxis: {
-    range: [cnt-500,cnt]}
-  });
-}
-readBattery()
+  if(cnt>500) {
+    Plotly.relayout('chart',{
+      xaxis: {
+      range: [cnt-500,cnt]}
+    });
+  }
+
+  readBattery()
 
 }
 
