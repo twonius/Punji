@@ -57,10 +57,10 @@ wsServer.on('request', function(request) {
       msg = JSON.parse(message.utf8Data);
       console.log('Received Message:', msg);
 
-    //   reading = new sensorData({reading : message.utf8Data});
-    //   reading.save(function (err, point) {
-    //   if (err) return console.error(err);
-    // });
+      reading = new sensorData(msg);
+      reading.save(function (err, point) {
+      if (err) return console.error(err);
+    });
       connection.sendUTF('Hi this is WebSocket server!');
     });
     connection.on('close', function(reasonCode, description) {

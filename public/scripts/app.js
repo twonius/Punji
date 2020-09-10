@@ -140,9 +140,9 @@ function handleNotifications(event) {
   weightData.push(weightReading);
 
   msg = {
-    user: 999,
+    userID: 999, // update based on login info
     weight: weightReading,
-    time: tstamp,
+    timestamp: tstamp,
     battery: battStatus
   }
   ws.send(JSON.stringify(msg)); //send over websocket
