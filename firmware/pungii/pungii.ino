@@ -167,9 +167,9 @@ void startAdv(void)
 }
 
 void setupRTC(void){
-  #ifndef ESP8266
-  while (!Serial); // wait for serial port to connect. Needed for native USB
-#endif
+//  #ifndef ESP8266
+//  while (!Serial); // wait for serial port to connect. Needed for native USB
+//#endif
 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
