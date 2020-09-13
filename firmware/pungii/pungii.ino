@@ -79,6 +79,10 @@ void setup()
   Serial.begin(115200);
   //while ( !Serial ) delay(10);   // for nrf52840 with native usb
 
+  pinMode(13, OUTPUT);
+  
+  Bluefruit.autoConnLed(false);
+  
   analogReadResolution(14); // Can be 8, 10, 12 or 14
   readVBAT();
 
@@ -475,12 +479,11 @@ void loop()
 
   
   if ( Bluefruit.connected() ) {
+    
       bleCTime.getCurrentTime();
       bleCTime.getLocalTimeInfo();
       Serial.printf(" %02d:%02d:%02d\n", bleCTime.Time.hour, bleCTime.Time.minute, bleCTime.Time.second);
-      //delay(5000); //reallly shoudl use the CCCD callback to see when notification is enabled 
 
-    //uint8_t hrmdata[3] = {0b00000010,highByte(weight),lowByte(weight)};// Sensor connected, increment BPS value
     
     
     //Serial.print("hrmdata: "); Serial.print(hrmdata[0]);Serial.print(" ");Serial.print(hrmdata[1]);Serial.print(" ");Serial.println(hrmdata[2]);
