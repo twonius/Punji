@@ -32,7 +32,7 @@ uint32_t tstamp;
 //char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 // moving average setup 
-const int numReadings = 10;
+const int numReadings = 100;
 
 int readings[numReadings];      // the readings from the analog input
 int readIndex = 0;              // the index of the current reading
@@ -77,11 +77,10 @@ uint16_t  weight = 70;
 void setup()
 {
   Serial.begin(115200);
-  //while ( !Serial ) delay(10);   // for nrf52840 with native usb
-
+ 
   pinMode(13, OUTPUT);
   
-  Bluefruit.autoConnLed(false);
+  
   
   analogReadResolution(14); // Can be 8, 10, 12 or 14
   readVBAT();
@@ -172,7 +171,6 @@ void startAdv(void)
 
 void setupRTC(void){
 //  #ifndef ESP8266
-//  while (!Serial); // wait for serial port to connect. Needed for native USB
 //#endif
 
   if (! rtc.begin()) {
@@ -433,7 +431,7 @@ void loop()
 {
     // turn on sensor
     digitalWrite(13,HIGH);
-    delay(100); // wait for system startup
+    delay(500); // wait for system startup
     // moving average code 
       for (int i = 0; i <= numReadings; i++) {
           // subtract the last reading:
@@ -460,10 +458,8 @@ void loop()
       tstamp = now.unixtime();
       Serial.print("Unix Timestamp: ");
       Serial.println(tstamp,HEX);
-
-  
-      //flags = 0b00000010 // Include time. SI units
-      
+ 
+    
       //build package
       uint8_t packet[packageSize]  = {0b00000010,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp};
 
@@ -479,7 +475,8 @@ void loop()
 
   
   if ( Bluefruit.connected() ) {
-    
+
+      
       bleCTime.getCurrentTime();
       bleCTime.getLocalTimeInfo();
       Serial.printf(" %02d:%02d:%02d\n", bleCTime.Time.hour, bleCTime.Time.minute, bleCTime.Time.second);
@@ -529,5 +526,5 @@ void loop()
   // Only send update once per 10 seconds
   // this is where better sleep logic would come in
 
-  delay(30000);
+  delay(5000);
 }
