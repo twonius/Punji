@@ -20,7 +20,7 @@
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-const int packageSize = 7;
+const int packageSize = 8;
 uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 
@@ -40,6 +40,7 @@ int total = 0;                  // the running total
 int average = 0;                // the average
 
 int inputPin = A1;
+int buttonPin = 7;
 
 
 // battery characteristics (see: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-feather-sense.pdf?timestamp=1597789631)
@@ -78,8 +79,8 @@ void setup()
 {
   Serial.begin(115200);
  
-  pinMode(13, OUTPUT);
-  
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(7, INPUT);
   
   
   analogReadResolution(14); // Can be 8, 10, 12 or 14
@@ -166,7 +167,7 @@ void startAdv(void)
   Bluefruit.Advertising.restartOnDisconnect(true);
   Bluefruit.Advertising.setInterval(32, 244);    // in unit of 0.625 ms
   Bluefruit.Advertising.setFastTimeout(30);      // number of seconds in fast mode
-  Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
+  Bluefruit.Advertising.start(120);                // 0 = Don't stop advertising after n seconds  
 }
 
 void setupRTC(void){
@@ -458,10 +459,17 @@ void loop()
       tstamp = now.unixtime();
       Serial.print("Unix Timestamp: ");
       Serial.println(tstamp,HEX);
- 
+
+
+      // update battery status
+
+      float vbat_mv = readVBAT();
+
+      // Convert from raw mv to percentage (based on LIPO chemistry)
+       uint8_t vbat_per = mvToPercent(vbat_mv);
     
       //build package
-      uint8_t packet[packageSize]  = {0b00000010,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp};
+      uint8_t packet[packageSize]  = {0b00000010,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp,vbat_per};
 
       //write package to buffer
       fifoWrite(packet); //write values to the buffer
@@ -511,16 +519,23 @@ void loop()
       };
     }
  
-   // update battery status
-
-    float vbat_mv = readVBAT();
-
-     // Convert from raw mv to percentage (based on LIPO chemistry)
-    uint8_t vbat_per = mvToPercent(vbat_mv);
+  
 
     blebas.write(vbat_per);
   
-  }
+  }else{
+      // read the state of the pushbutton value:
+      bool buttonState = digitalRead(buttonPin);
+      Serial.println("Disconnected");
+      // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
+      if (buttonState == LOW) {
+        startAdv();
+        Serial.println("Adv Requested"); 
+        digitalWrite(LED_BLUE,HIGH);
+        delay(500);
+        digitalWrite(LED_BLUE,LOW);
+      } 
+    }
 
 
   // Only send update once per 10 seconds

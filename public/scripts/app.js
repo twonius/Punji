@@ -131,6 +131,7 @@ function handleNotifications(event) {
   var setup = value.getUint8()
   var weightReading = value.getUint16(1)
   var tstamp = value.getUint32(3)
+  var battStatus = value.getUint8(7)
 
   console.log(tstamp.toString(16))
   //console.log(timeConverter(unix_timestamp));
@@ -166,7 +167,7 @@ function handleNotifications(event) {
     });
   }
 
-  readBattery()
+  //readBattery()
 
 }
 
