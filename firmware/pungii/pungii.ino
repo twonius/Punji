@@ -78,7 +78,8 @@ uint16_t  weight = 70;
 void setup()
 {
   Serial.begin(115200);
- 
+
+  // button and LED for advertising trigger after timeout. Timeout was enabled to save battery when not connected 
   pinMode(LED_BLUE, OUTPUT);
   pinMode(7, INPUT);
   
