@@ -13,6 +13,9 @@
 *********************************************************************/
 #include <bluefruit.h>
 #include "RTClib.h"
+#include "Adafruit_VL6180X.h"
+
+Adafruit_VL6180X vl = Adafruit_VL6180X();
 
 
 // initialize Data buffer https://helloacm.com/how-do-you-design-a-circular-fifo-buffer-queue-in-c/
@@ -41,8 +44,8 @@ int average = 0;                // the average
 
 int inputPin = A1;
 int buttonPin = 7;
-
-
+int sensorEnablePin = 13; 
+// boost converter on pin 13 
 // battery characteristics (see: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-feather-sense.pdf?timestamp=1597789631)
 uint32_t vbat_pin = A6;
 
@@ -75,13 +78,14 @@ BLEClientCts  bleCTime;
 
 uint16_t  weight = 70;
 
-void setup()
+void setup()  //************************************************************************************************************************
 {
   Serial.begin(115200);
 
   // button and LED for advertising trigger after timeout. Timeout was enabled to save battery when not connected 
   pinMode(LED_BLUE, OUTPUT);
   pinMode(7, INPUT);
+  pinMode(sensorEnablePin, OUTPUT);
   
   
   analogReadResolution(14); // Can be 8, 10, 12 or 14
@@ -133,6 +137,9 @@ void setup()
 
   Serial.println("Ready Player One!!!");
   Serial.println("\nAdvertising");
+
+  vl.begin();
+     
   delay(5000); // BAD PROGRAMMING, should use callback to say when notifications are ready 
 }
 
@@ -431,15 +438,15 @@ void printArray(uint8_t *ptr, size_t length)
 
 void loop()
 {
-    // turn on sensor
-    digitalWrite(13,HIGH);
-    delay(500); // wait for system startup
+
+
+
     // moving average code 
       for (int i = 0; i <= numReadings; i++) {
           // subtract the last reading:
         total = total - readings[readIndex];
           // read from the sensor:
-        readings[readIndex] = analogRead(inputPin);
+        readings[readIndex] = vl.readRange();
           // add the reading to the total:
         total = total + readings[readIndex];
           // advance to the next position in the array:
@@ -450,10 +457,10 @@ void loop()
           // ...wrap around to the beginning:
               readIndex = 0;
         }
-        delay(1);
+        delay(20);
       }
       // calculate the average:
-      weight = total / numReadings;
+      weight = total *100 / numReadings;
 
       //get unix timestamp 
       DateTime now = rtc.now();
@@ -480,7 +487,7 @@ void loop()
   Serial.println(bufferLength());  
  
 
-  digitalWrite(13,LOW); // turn off the sensor  
+  digitalWrite(sensorEnablePin,LOW); // turn off the sensor  
 
   
   if ( Bluefruit.connected() ) {
