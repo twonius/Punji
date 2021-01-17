@@ -12,9 +12,7 @@ const sslRedirect = require('heroku-ssl-redirect');
 const WebSocketServer = require('websocket').server;
 var sensorData = require("./models/sensorData");
 
-if(process.env.NODE_ENV = "dev"){
-  const plotly = require("Plotly");
-};
+
 
 
 

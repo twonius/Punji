@@ -35,12 +35,7 @@ document.querySelector('#stop').addEventListener('click', function(event) {
   if (isWebBluetoothEnabled()) { stop() }
 })
 
-if(process.env.NODE_ENV = "dev"){
-  Plotly.plot('chart',[{
-    y:[],
-    type:'line'
-  }]);
-};
+
 
 
 function isWebBluetoothEnabled() {
@@ -158,19 +153,7 @@ function handleNotifications(event) {
   //console.log('weight: ' + weightReading_str);
   weightDisp.textContent = weightReading_str.concat(unit);
 
-  if(process.env.NODE_ENV = "dev"){
 
-    Plotly.extendTraces('chart', { y: [[weightReading]] }, [0]);
-
-      cnt = weightData.length;
-
-      if(cnt>500) {
-        Plotly.relayout('chart',{
-          xaxis: {
-          range: [cnt-500,cnt]}
-        });
-      }
-    };
 
   //readBattery()
 
