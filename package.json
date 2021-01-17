@@ -2,7 +2,8 @@
   "name": "punji",
   "version": "1.0.0",
   "engines": {
-  "node": "12.18.0"
+  "node": "12.18.0",
+  "npm":"6.14.4"
   },
   "description": "webble test",
   "main": "app.js",
@@ -30,12 +31,7 @@
   "scripts": {
     "test": "node app.js",
     "start": "node app.js",
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "heroku-postbuild": "npm run build"
-  },
+    },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/twonius/Punji.git"
