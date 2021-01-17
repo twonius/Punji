@@ -40,7 +40,7 @@ if(process.env.NODE_ENV = "dev"){
     y:[],
     type:'line'
   }]);
-}
+};
 
 
 function isWebBluetoothEnabled() {
@@ -170,7 +170,7 @@ function handleNotifications(event) {
           range: [cnt-500,cnt]}
         });
       }
-    }
+    };
 
   //readBattery()
 

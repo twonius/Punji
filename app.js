@@ -2,7 +2,6 @@ const http = require('http')
 const express = require('express');
 const mongoose = require("mongoose");
 const passport = require("passport");
-
 var bodyParser = require("body-parser")
 var app = express();
 var methodOverride = require("method-override");
@@ -15,7 +14,7 @@ var sensorData = require("./models/sensorData");
 
 if(process.env.NODE_ENV = "dev"){
   const plotly = require("Plotly");
-}
+};
 
 
 
