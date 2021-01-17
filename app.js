@@ -2,7 +2,7 @@ const http = require('http')
 const express = require('express');
 const mongoose = require("mongoose");
 const passport = require("passport");
-const plotly = require("Plotly");
+
 var bodyParser = require("body-parser")
 var app = express();
 var methodOverride = require("method-override");
@@ -12,6 +12,11 @@ const router = express.Router();
 const sslRedirect = require('heroku-ssl-redirect');
 const WebSocketServer = require('websocket').server;
 var sensorData = require("./models/sensorData");
+
+if(process.env.NODE_ENV = "dev"){
+  const plotly = require("Plotly");
+}
+
 
 
 
