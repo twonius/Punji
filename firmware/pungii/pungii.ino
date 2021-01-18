@@ -15,7 +15,7 @@
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
-uint32_t DeviceID = 1; 
+uint8_t DeviceID = 1; 
 
 Adafruit_VL6180X vl = Adafruit_VL6180X();
 
@@ -483,9 +483,10 @@ void loop()
 
       //write package to buffer
       fifoWrite(packet); //write values to the buffer
+  Serial.print("deviceID: "); 
+  Serial.print(DeviceID);
   
-  
-  Serial.print("Buffer Length: "); 
+  Serial.print(" Buffer Length: "); 
   Serial.println(bufferLength());  
  
 
