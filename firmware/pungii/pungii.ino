@@ -15,7 +15,7 @@
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
-uint8_t = 998; 
+uint8_t DeviceID = 998; 
 
 Adafruit_VL6180X vl = Adafruit_VL6180X();
 
@@ -479,7 +479,7 @@ void loop()
        uint8_t vbat_per = mvToPercent(vbat_mv);
     
       //build package
-      uint8_t packet[packageSize]  = {0b00000010,DevieID,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp,vbat_per};
+      uint8_t packet[packageSize]  = {0b00000010,DeviceID,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp,vbat_per};
 
       //write package to buffer
       fifoWrite(packet); //write values to the buffer
