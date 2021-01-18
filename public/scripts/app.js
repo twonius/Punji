@@ -132,7 +132,7 @@ function handleNotifications(event) {
   var tstamp = value.getUint32(7)
   var battStatus = value.getUint8(11)
 
-  console.log(tstamp.toString(16))
+  console.log(device.toString(16))
   //console.log(timeConverter(unix_timestamp));
 
 
