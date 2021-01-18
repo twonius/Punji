@@ -15,17 +15,17 @@
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
-uint8_t DeviceID = 998; 
+uint32_t DeviceID = 1; 
 
 Adafruit_VL6180X vl = Adafruit_VL6180X();
 
 
 // initialize Data buffer https://helloacm.com/how-do-you-design-a-circular-fifo-buffer-queue-in-c/
-#define BUFFER_SIZE 20000
+#define BUFFER_SIZE 10000
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-const int packageSize = 9;
+const int packageSize = 12;
 uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 

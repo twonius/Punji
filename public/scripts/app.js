@@ -127,10 +127,10 @@ function handleNotifications(event) {
   // In the "real" world, you'd use data.getUint8, data.getUint16 or even
   // TextDecoder to process raw data bytes.
   var setup = value.getUint8()
-  var device = value.getUint8(1)
-  var weightReading = value.getUint16(2)
-  var tstamp = value.getUint32(4)
-  var battStatus = value.getUint8(8)
+  var device = value.getUint32(1)
+  var weightReading = value.getUint16(5)
+  var tstamp = value.getUint32(7)
+  var battStatus = value.getUint8(11)
 
   console.log(tstamp.toString(16))
   //console.log(timeConverter(unix_timestamp));
