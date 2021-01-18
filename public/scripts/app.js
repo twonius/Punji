@@ -127,9 +127,10 @@ function handleNotifications(event) {
   // In the "real" world, you'd use data.getUint8, data.getUint16 or even
   // TextDecoder to process raw data bytes.
   var setup = value.getUint8()
-  var weightReading = value.getUint16(1)
-  var tstamp = value.getUint32(3)
-  var battStatus = value.getUint8(7)
+  var device = value.getUint8(1)
+  var weightReading = value.getUint16(2)
+  var tstamp = value.getUint32(4)
+  var battStatus = value.getUint8(8)
 
   console.log(tstamp.toString(16))
   //console.log(timeConverter(unix_timestamp));
@@ -139,7 +140,7 @@ function handleNotifications(event) {
   weightData.push(weightReading);
 
   msg = {
-    userID: 999, // update based on login info
+    deviceID: device, // update based on login info
     weight: weightReading,
     timestamp: tstamp,
     battery: battStatus
