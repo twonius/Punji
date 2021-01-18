@@ -24,7 +24,7 @@ mongoose.promise = global.Promises;
 const databaseUri = process.env.MONGODB_URI || 'mongodb://localhost/spot';
 
 mongoose.connect(databaseUri, {useNewUrlParser: true})
-  .then(() => console.log('database connected'))
+  .then(() => console.log('database connected on: ', databaseUri))
   .catch(err => console.log('Database conection error : ${err.message}') );
 
 
