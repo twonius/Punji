@@ -26,13 +26,7 @@ document.querySelector('#read').addEventListener('click', function() {
   if (isWebBluetoothEnabled()) { read() }
 })
 
-document.querySelector('#start').addEventListener('click', function(event) {
-  if (isWebBluetoothEnabled()) { start() }
-})
 
-document.querySelector('#stop').addEventListener('click', function(event) {
-  if (isWebBluetoothEnabled()) { stop() }
-})
 
 
 
@@ -147,15 +141,19 @@ function handleNotifications(event) {
   ws.send(JSON.stringify(msg)); //send over websocket
 
   var weightDisp = document.getElementById("weightDisplay");
+  var battDisp = document.getElementById("batteryLevel");
+
   var unit = "";
   var weightReading_str = weightReading.toString();
 
+  var battReading_str = battStatus.toString();
+
+  console.log('batt: '+ battReading_str);
   //console.log('weight: ' + weightReading_str);
   weightDisp.textContent = weightReading_str.concat(unit);
+  battDisp.style.height = battReading_str.concat("%")
 
 
-
-  //readBattery()
 
 }
 
