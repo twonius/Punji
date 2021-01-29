@@ -125,7 +125,6 @@ function handleNotifications(event) {
   var tstamp = value.getUint32(4);
   var battStatus = value.getUint8(8);
 
-  console.log(value.toString(16));
   //console.log(timeConverter(unix_timestamp));
 
 
@@ -142,16 +141,18 @@ function handleNotifications(event) {
 
   var weightDisp = document.getElementById("weightDisplay");
   var battDisp = document.getElementById("batteryLevel");
+  var devDisp = document.getElementById("deviceID");
 
   var unit = "";
   var weightReading_str = weightReading.toString();
-
   var battReading_str = battStatus.toString();
+  var device_str = device.toString();
 
-  console.log('batt: '+ battReading_str);
+  // console.log('batt: '+ battReading_str);
   //console.log('weight: ' + weightReading_str);
   weightDisp.textContent = weightReading_str.concat(unit);
-  battDisp.style.height = battReading_str.concat("%")
+  battDisp.textContent = ('Battery: ' + battReading_str.concat("%"));
+  devDisp.textContent = ('Device ID: ' + device_str);
 
 
 
