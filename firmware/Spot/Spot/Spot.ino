@@ -12,6 +12,8 @@
  any redistribution
 *********************************************************************/
 #include <bluefruit.h>
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
@@ -25,7 +27,7 @@ Adafruit_VL6180X vl = Adafruit_VL6180X();
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-const int packageSize = 10;
+const int packageSize = 12;
 uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 
@@ -69,8 +71,8 @@ BLEService        wsms = BLEService(0x181D); // weight scale
 BLECharacteristic wsfc = BLECharacteristic(0x2A9E);  //weight scale feature
 BLECharacteristic wmc = BLECharacteristic(0x2A9D); // weight measurement
 
-
-
+BLEDfu  bledfu;  // OTA DFU service
+BLEUart bleuart; // uart over ble
 BLEDis bledis;    // DIS (Device Information Service) helper class instance
 BLEBas blebas;    // BAS (Battery Service) helper class instance
 
@@ -107,7 +109,10 @@ void setup()  //****************************************************************
 
   // Initialise the Bluefruit module
   Serial.println("Initialise the Bluefruit nRF52 module");
+  Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
   Bluefruit.begin();
+
+  Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
 
   // Set the advertised device name (keep it short!)
   Serial.println("Setting Device Name to 'Spot WS'");
@@ -117,21 +122,21 @@ void setup()  //****************************************************************
   Bluefruit.Periph.setConnectCallback(connect_callback);
   Bluefruit.Periph.setDisconnectCallback(disconnect_callback);
 
+   bledfu.begin();
+   
   // Configure and Start the Device Information Service
   Serial.println("Configuring the Device Information Service");
-  bledis.setManufacturer("Adafruit Industries");
+  bledis.setManufacturer("Spot Technology Corp.");
   bledis.setModel("Spot WS");
   bledis.begin();
 
+  
+  bleuart.begin();
+  
   // Start the BLE Battery Service and set it to 100%
   Serial.println("Configuring the Battery Service");
   blebas.begin();
   blebas.write(100);
-
-  // Setup the Heart Rate Monitor service using
-  // BLEService and BLECharacteristic classes
-  Serial.println("Configuring the Weight Scale Service");
-  setupHRM();
 
   // Setup the advertising packet(s)
   Serial.println("Setting up the advertising payload(s)");
@@ -152,17 +157,16 @@ void startAdv(void)
   Bluefruit.Advertising.addTxPower();
 
   // Include WS Service UUID
-  Bluefruit.Advertising.addService(wsms);
+  Bluefruit.Advertising.addService(bleuart);
 
   // include CT Service UUID
   Bluefruit.Advertising.addService(bleCTime);
 
-  
   // include Battery Service UUID
   Bluefruit.Advertising.addService(blebas);
 
   // Include Name
-  Bluefruit.Advertising.addName();
+  Bluefruit.ScanResponse.addName();
 
   
   /* Start Advertising
@@ -438,7 +442,7 @@ void printArray(uint8_t *ptr, size_t length)
     printf("%d", ptr[i]);        
 }  
 
-void loop()
+void loop() //**********************Brother may I have some Lööps ***********************************
 {
 
 
@@ -479,23 +483,8 @@ void loop()
        uint8_t vbat_per = mvToPercent(vbat_mv);
     
       //build package
+      uint8_t packet[packageSize]  = {0b00000010,DeviceID,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp,vbat_per};
 
-      
-     //uint8_t packet[packageSize]  = {0b00000010,DeviceID,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp,vbat_per};
-      uint16_t y = now.year();
-      uint8_t y1 = now.year() >> 8 ;
-      uint8_t y2 = now.year();
-      uint8_t m = now.month();
-      uint8_t d =  now.day();
-      uint8_t h = now.hour();
-      uint8_t mm = now.minute();
-      uint8_t s = now.second(); 
-
-      Serial.printf("year: %i , month: %i, day: %i \n",now.year(),m,d);
-
-      Serial.printf("y1: %i , y2: %i, y:%u \n",y1,y2,y);
-      
-      uint8_t packet[packageSize]  = {0b00000010,highByte(weight), lowByte(weight),y2, y1,m,d,h,mm,s};
       //write package to buffer
       fifoWrite(packet); //write values to the buffer
   Serial.print("deviceID: "); 
@@ -522,7 +511,7 @@ void loop()
     // If it is connected but CCCD is not enabled
     // The characteristic's value is still updated although notification is not sent
     
-    if(wmc.notifyEnabled()){
+    if(bleuart.notifyEnabled()){
       while(!bufferEmpty()){
         int i=0;
         
@@ -536,7 +525,7 @@ void loop()
         Serial.println("");
         
 
-        if ( wmc.notify(notification, packageSize) ){
+        if ( bleuart.write(notification, packageSize) ){
           Serial.println("Weight Measurement updated"); 
         }else{
           Serial.println("ERROR: notify not set in the CCCD or not connected!");
