@@ -33,6 +33,7 @@ app.set("view engine","ejs");
 app.use(express.static(__dirname+"/public"));
 app.use(methodOverride('_method'));
 app.use(cookieParser('secret'));
+
 //app.use(sslRedirect());
 
 app.locals.moment = require('moment');
