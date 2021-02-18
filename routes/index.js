@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var sensorData = require("./models/sensorData");
+var sensorData = require("../models/sensorData");
 
 router.use(express.json());
 
@@ -11,7 +11,7 @@ router.get("/",function(req,res){
 
 router.post("/data",function(req,res){
   console.log(req.body)
-  
+
   reading = new sensorData(req.body);
   reading.save().then(
     ()=>{
@@ -23,8 +23,6 @@ router.post("/data",function(req,res){
         });
       }
     );
-
-  );
 });
 
 module.exports = router;
