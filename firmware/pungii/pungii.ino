@@ -15,7 +15,7 @@
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
-uint8_t DeviceID = 1; 
+uint8_t deviceID = 1; // assigned in userID field. 
 
 Adafruit_VL6180X vl = Adafruit_VL6180X();
 
@@ -25,7 +25,7 @@ Adafruit_VL6180X vl = Adafruit_VL6180X();
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-const int packageSize = 10;
+const int packageSize = 11;
 uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 
@@ -253,7 +253,7 @@ void setupHRM(void)
   wsfc.setFixedLen(1);
   wsfc.setCccdWriteCallback(cccd_callback);  // Optionally capture CCCD updates
   wsfc.begin();
-  uint8_t weightfeaturedata[2] = { 0b00000001, 0x40 }; // Set the characteristic to use SI units, with time stamp present
+  uint8_t weightfeaturedata[2] = { 0b00000011, 0x40 }; // Set the characteristic to use SI units, with time stamp present, User ID Present and 
   wsfc.write(weightfeaturedata, 2);
   
 
@@ -279,7 +279,7 @@ void setupHRM(void)
   wmc.setFixedLen(packageSize);
   wmc.setCccdWriteCallback(cccd_callback);  // Optionally capture CCCD updates
   wmc.begin();
-  uint8_t weightdata[2] = { 0b00001110, 0x40 }; // Set the characteristic to use SI units, with time stamp present
+  uint8_t weightdata[2] = { 0b00000110, 0x40 }; // Set the characteristic to use SI units, with time stamp present
   wmc.write(weightdata, 2);
 
 
@@ -481,7 +481,6 @@ void loop()
       //build package
 
       
-     //uint8_t packet[packageSize]  = {0b00000010,DeviceID,highByte(weight), lowByte(weight),tstamp >> 24, tstamp >> 16, tstamp >>8, tstamp,vbat_per};
       uint16_t y = now.year();
       uint8_t y1 = now.year() >> 8 ;
       uint8_t y2 = now.year();
@@ -495,11 +494,11 @@ void loop()
 
       Serial.printf("y1: %i , y2: %i, y:%u \n",y1,y2,y);
       
-      uint8_t packet[packageSize]  = {0b00000010,highByte(weight), lowByte(weight),y2, y1,m,d,h,mm,s};
+      uint8_t packet[packageSize]  = {0b00000110,lowByte(weight), highByte(weight),y2, y1,m,d,h,mm,s,deviceID};
       //write package to buffer
       fifoWrite(packet); //write values to the buffer
   Serial.print("deviceID: "); 
-  Serial.print(DeviceID);
+  Serial.print(deviceID);
   
   Serial.print(" Buffer Length: "); 
   Serial.println(bufferLength());  
@@ -547,7 +546,7 @@ void loop()
  
   
 
-    blebas.write(vbat_per);
+    blebas.notify(vbat_per);
   
   }else{
       // read the state of the pushbutton value:
