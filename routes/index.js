@@ -11,13 +11,20 @@ router.get("/",function(req,res){
 
 router.post("/data",function(req,res){
   console.log(req.body)
-  res.send('POST request to the homepage');
-
+  
   reading = new sensorData(req.body);
-  reading.save(function (err, point) {
-    if (err) return console.error(err);
-    console.log('Post saved to DB')
-  });
+  reading.save().then(
+    ()=>{
+      req.status(201).json({message:'post saved successfully'});
+    }).catch(
+      (error) => {
+        res.status(400).json({
+          error: error
+        });
+      }
+    );
+
+  );
 });
 
 module.exports = router;
