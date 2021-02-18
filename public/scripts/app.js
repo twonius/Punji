@@ -16,11 +16,14 @@ const ws = new WebSocket('ws://localhost:9898/');
 ws.onopen = function() {
     console.log('WebSocket Client Connected');
 
+
 };
 ws.onmessage = function(e) {
   //console.log("Received: '" + e.data + "'");
 };
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 document.querySelector('#read').addEventListener('click', function() {
   if (isWebBluetoothEnabled()) { read() }
@@ -120,21 +123,27 @@ function handleNotifications(event) {
   // In the "real" world, you'd use data.getUint8, data.getUint16 or even
   // TextDecoder to process raw data bytes.
   var setup = value.getUint8();
-  var device = value.getUint8(1);
-  var weightReading = value.getUint16(2);
-  var tstamp = value.getUint32(4);
-  var battStatus = value.getUint8(8);
+  var weightReading_low = value.getUint8(1);
+  var weightReading_high = value.getUint8(2);
+  var y2 = value.getUint8(3);
+  var y1 = value.getUint8(4);
+  var month = value.getUint8(5);
+  var day = value.getUint8(6);
+  var hour = value.getUint8(7);
+  var minute = value.getUint8(8);
+  var second = value.getUint8(9);
+  var userID = value.getUint8(10);
 
   //console.log(timeConverter(unix_timestamp));
-
-
+  weightReading = ((weightReading_high & 0xFF) << 8) | (weightReading_low & 0xFF);
+  year = ((y1 & 0xFF)<< 8 ) | (y2 & 0xFF);
   // build array to plot
   weightData.push(weightReading);
 
   msg = {
-    deviceID: device, // update based on login info
+    userID: userID, // update based on login info
     weight: weightReading,
-    timestamp: tstamp,
+    timestamp: (monthNames[month] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
     battery: battStatus
   }
   ws.send(JSON.stringify(msg)); //send over websocket
@@ -146,7 +155,7 @@ function handleNotifications(event) {
   var unit = "";
   var weightReading_str = weightReading.toString();
   var battReading_str = battStatus.toString();
-  var device_str = device.toString();
+  var device_str = userID.toString();
 
   // console.log('batt: '+ battReading_str);
   //console.log('weight: ' + weightReading_str);
