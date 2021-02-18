@@ -10,12 +10,12 @@ router.get("/",function(req,res){
 });
 
 router.post("/data",function(req,res){
-  console.log(req.body)
+
 
   reading = new sensorData(req.body);
   reading.save().then(
     ()=>{
-      req.status(201).json({message:'post saved successfully'});
+      res.status(201).json({message:'post saved successfully'});
     }).catch(
       (error) => {
         res.status(400).json({
