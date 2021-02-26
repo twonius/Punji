@@ -96,21 +96,25 @@ async function connectGATTAsync() {
 
 
     weightCharacteristic.addEventListener('characteristicvaluechanged',handleNotifications);
+    batteryCharacteristic.addEventListener('characteristicvaluechanged',handleBatteryNotifications);
 
-
+    start();
 
 }catch(error) {
     console.log('Argh! ' + error);
   }
 }
 
-async function readBattery(){
-  const value = await batteryCharacteristic.readValue();
-  battStatus = value.getUint8(0)
+
+
+function handleBatteryNotifications(event){
+
+  let level = event.target.value;
+  battStatus = level;
   console.log('> Battery Level is ' + battStatus + '%');
 
-}
 
+}
 
 
 //swapped in code from https://googlechrome.github.io/samples/web-bluetooth/notifications.html
@@ -133,6 +137,8 @@ function handleNotifications(event) {
   var minute = value.getUint8(8);
   var second = value.getUint8(9);
   var userID = value.getUint8(10);
+
+
 
   //console.log(timeConverter(unix_timestamp));
   weightReading = ((weightReading_high & 0xFF) << 8) | (weightReading_low & 0xFF);
@@ -169,7 +175,7 @@ function handleNotifications(event) {
 
 
 function start() {
-  weightCharacteristic.startNotifications()
+  battCharacteristic.startNotifications()
   .then(_ => {
     console.log('Start reading...')
     document.querySelector('#start').disabled = true
@@ -177,7 +183,9 @@ function start() {
   })
   .catch(error => {
     console.log('[ERROR] Start: ' + error)
-  })
+  });
+
+
 }
 
 function stop() {
