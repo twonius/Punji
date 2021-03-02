@@ -7,7 +7,7 @@ var battCharacteristic = 'battery_level'
 var bluetoothDeviceDetected
 var gattCharacteristic
 var weightCharacteristic
-var battCharacteristic
+var batteryCharacteristic
 var battStatus = 999
 
 var weightData = new Array()
@@ -110,7 +110,7 @@ async function connectGATTAsync() {
 function handleBatteryNotifications(event){
 
   let level = event.target.value;
-  battStatus = level;
+  battStatus = level.getUint8();
   console.log('> Battery Level is ' + battStatus + '%');
 
 
@@ -149,7 +149,7 @@ function handleNotifications(event) {
   msg = {
     userID: userID, // update based on login info
     weight: weightReading,
-    timestamp: (monthNames[month] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
+    timestamp: (monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
     battery: battStatus
   }
   ws.send(JSON.stringify(msg)); //send over websocket
@@ -175,7 +175,7 @@ function handleNotifications(event) {
 
 
 function start() {
-  battCharacteristic.startNotifications()
+  batteryCharacteristic.startNotifications()
   .then(_ => {
     console.log('Start reading...')
     document.querySelector('#start').disabled = true
