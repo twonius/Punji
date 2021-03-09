@@ -178,7 +178,7 @@ function handleNotifications(event) {
     redirect: 'follow'
   };
 
-  fetch("http://punjii.herokuapp.com/data", requestOptions)
+  fetch("https://punjii.herokuapp.com/data", requestOptions)
     .then(response => response.text())
     .then(result => console.log(result))
     .catch(error => console.log('error', error));
