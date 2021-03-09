@@ -186,18 +186,13 @@ function handleNotifications(event) {
     timestamp: (monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
     battery: battStatus
   }
-  ws.send(JSON.stringify(msg)); //send over websocket
+  //ws.send(JSON.stringify(msg)); //send over websocket
 
-  var postData = JSON.stringify({
-      "weight":weightReading,
-      "timestamp":(monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
-      "battery":battStatus,
-      "userID":userID
-    });
+  var postData = JSON.stringify(msg);
 
-req.write(postData);
-
-req.end();
+  console.log("writing data")
+  req.write(postData);
+  req.end();
 
   var weightDisp = document.getElementById("weightDisplay");
   var battDisp = document.getElementById("batteryLevel");
