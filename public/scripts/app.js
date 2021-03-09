@@ -24,12 +24,7 @@ var myHeaders = new Headers();
 myHeaders.append("Content-Type", "application/json");
 
 
-var requestOptions = {
-  method: 'POST',
-  headers: myHeaders,
-  body: raw,
-  redirect: 'follow'
-};
+
 
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -172,7 +167,17 @@ function handleNotifications(event) {
 
 
   // Post requst using fetch
+
+
   var raw = JSON.stringify(msg);
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+
   fetch("http://punjii.herokuapp.com/data", requestOptions)
     .then(response => response.text())
     .then(result => console.log(result))
