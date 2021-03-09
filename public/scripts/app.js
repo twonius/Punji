@@ -20,35 +20,17 @@ var weightData = new Array()
 //   //console.log("Received: '" + e.data + "'");
 // };
 
-var http = require('follow-redirects').http;
-var fs = require('fs');
+var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
 
-var options = {
-  'method': 'POST',
-  'hostname': 'punjii.herokuapp.com',
-  'path': '/data',
-  'headers': {
-    'Content-Type': 'application/json'
-  },
-  'maxRedirects': 20
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw,
+  redirect: 'follow'
 };
 
-var req = http.request(options, function (res) {
-  var chunks = [];
-
-  res.on("data", function (chunk) {
-    chunks.push(chunk);
-  });
-
-  res.on("end", function (chunk) {
-    var body = Buffer.concat(chunks);
-    console.log(body.toString());
-  });
-
-  res.on("error", function (error) {
-    console.error(error);
-  });
-});
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -188,11 +170,15 @@ function handleNotifications(event) {
   }
   //ws.send(JSON.stringify(msg)); //send over websocket
 
-  var postData = JSON.stringify(msg);
 
-  console.log("writing data")
-  req.write(postData);
-  req.end();
+  // Post requst using fetch
+  var raw = JSON.stringify(msg);
+  fetch("http://punjii.herokuapp.com/data", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));
+
+
 
   var weightDisp = document.getElementById("weightDisplay");
   var battDisp = document.getElementById("batteryLevel");
