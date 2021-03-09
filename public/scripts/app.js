@@ -15,12 +15,40 @@ var weightData = new Array()
 const ws = new WebSocket('ws://localhost:9898/');
 ws.onopen = function() {
     console.log('WebSocket Client Connected');
-
-
 };
 ws.onmessage = function(e) {
   //console.log("Received: '" + e.data + "'");
 };
+
+var http = require('follow-redirects').http;
+var fs = require('fs');
+
+var options = {
+  'method': 'POST',
+  'hostname': 'punjii.herokuapp.com',
+  'path': '/data',
+  'headers': {
+    'Content-Type': 'application/json'
+  },
+  'maxRedirects': 20
+};
+
+var req = http.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
+  });
+
+  res.on("end", function (chunk) {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+    console.error(error);
+  });
+});
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -159,6 +187,17 @@ function handleNotifications(event) {
     battery: battStatus
   }
   ws.send(JSON.stringify(msg)); //send over websocket
+
+  var postData = JSON.stringify({
+      "weight":weightReading,
+      "timestamp":(monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
+      "battery":battStatus,
+      "userID":userID
+    });
+
+req.write(postData);
+
+req.end();
 
   var weightDisp = document.getElementById("weightDisplay");
   var battDisp = document.getElementById("batteryLevel");
