@@ -12,13 +12,13 @@ var battStatus = 999
 
 var weightData = new Array()
 
-const ws = new WebSocket('ws://localhost:9898/');
-ws.onopen = function() {
-    console.log('WebSocket Client Connected');
-};
-ws.onmessage = function(e) {
-  //console.log("Received: '" + e.data + "'");
-};
+// const ws = new WebSocket('ws://localhost:9898/');
+// ws.onopen = function() {
+//     console.log('WebSocket Client Connected');
+// };
+// ws.onmessage = function(e) {
+//   //console.log("Received: '" + e.data + "'");
+// };
 
 var http = require('follow-redirects').http;
 var fs = require('fs');
