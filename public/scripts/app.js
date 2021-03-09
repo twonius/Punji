@@ -55,6 +55,7 @@ function getDeviceInfo() {
   console.log('Requesting any Bluetooth Device...')
   return navigator.bluetooth.requestDevice(options).then(device => {
     bluetoothDeviceDetected = device
+    bluetoothDeviceDetected.addEventListener('gattserverdisconnected', onDisconnected);
   }).catch(error => {
     console.log('Argh! ' + error)
   })
@@ -73,6 +74,11 @@ function read() {
 }
 
 
+function onDisconnected(){
+  console.log('disconnected, retrying')
+  read();
+
+}
 
 async function connectGATTAsync() {
   try {
@@ -111,7 +117,7 @@ function handleBatteryNotifications(event){
 
   let level = event.target.value;
   battStatus = level.getUint8();
-  console.log('> Battery Level is ' + battStatus + '%');
+  // console.log('> Battery Level is ' + battStatus + '%');
 
 
 }
@@ -160,7 +166,12 @@ function handleNotifications(event) {
 
   var unit = "";
   var weightReading_str = weightReading.toString();
-  var battReading_str = battStatus.toString();
+  if (battStatus == 999){
+      var battReading_str = '- ';
+  }else{
+    var battReading_str = battStatus.toString();
+  };
+
   var device_str = userID.toString();
 
   // console.log('batt: '+ battReading_str);
@@ -178,8 +189,7 @@ function start() {
   batteryCharacteristic.startNotifications()
   .then(_ => {
     console.log('Start reading...')
-    document.querySelector('#start').disabled = true
-    document.querySelector('#stop').disabled = false
+
   })
   .catch(error => {
     console.log('[ERROR] Start: ' + error)
