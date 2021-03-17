@@ -21,7 +21,7 @@ var indexRoutes = require("./routes/index");
 
 //assign mongoose a promise library and connect to a database
 mongoose.promise = global.Promises;
-const databaseUri = process.env.MONGODB_URI || 'mongodb+srv://user:cqXSE7EzLgh2LC9@beta.d501j.mongodb.net/spot?retryWrites=true&w=majority';
+const databaseUri = process.env.MONGODB_URI || 'mongodb+srv://user:yqpAl6Q4oHLliI00@beta.d501j.mongodb.net/spot?retryWrites=true&w=majority';
 
 mongoose.connect(databaseUri, {useNewUrlParser: true})
   .then(() => console.log('database connected on: ', databaseUri))
