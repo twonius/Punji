@@ -15,7 +15,7 @@
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
-uint8_t deviceID = 1; // assigned in userID field. 
+uint8_t deviceID = 4; // assigned in userID field. 
 
 Adafruit_VL6180X vl = Adafruit_VL6180X();
 
