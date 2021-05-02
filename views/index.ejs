@@ -21,9 +21,11 @@
       <section>
         <div class="container text-center">
           <button id="read" class="btn btn-outline-primary">Connect</button>
-          <div></div>
-          <div>Current Weight: <input type="text" id="weightInput" name="Current Weight"></div>
-          <p>(kg/lbs doesn't matter, just be consistent)</p>
+          <form>
+            <label for="weightInput">Current Weight: </label>
+            <input type="text" id="weightInput" name="Current Weight">
+            <p>(kg/lbs doesn't matter, just be consistent)</p>            
+          </form>
           <div></div>
           <div id="weightDisplay" class="circle"></div>
           <div id="deviceID"></div>
