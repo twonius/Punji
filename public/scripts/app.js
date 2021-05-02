@@ -150,7 +150,7 @@ function handleNotifications(event) {
   var userID = value.getUint8(10);
 
   var weightInput = document.getElementById("weightInput");
-  console.log("weightInput: "+ String(weightInput.value))
+
 
   //console.log(timeConverter(unix_timestamp));
   weightReading = ((weightReading_high & 0xFF) << 8) | (weightReading_low & 0xFF);
