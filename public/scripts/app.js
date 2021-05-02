@@ -163,7 +163,7 @@ function handleNotifications(event) {
     weight: weightReading,
     timestamp: (monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
     battery: battStatus,
-    weightInput: String(weightInput.getValue)
+    weightInput: String(weightInput.value)
   }
   //ws.send(JSON.stringify(msg)); //send over websocket
 
