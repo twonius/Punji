@@ -5,7 +5,8 @@ var sensorDataSchema = new mongoose.Schema({
     userID: {type: Number, default: 0},
     timestamp: String,
     weight: {type: Number, default : 9999},
-    battery: {type: Number, default: 999}
+    battery: {type: Number, default: 999},
+    WeightInput: Number
 });
 
 module.exports = mongoose.model("sensorData",sensorDataSchema);

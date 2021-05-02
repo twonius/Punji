@@ -150,7 +150,7 @@ function handleNotifications(event) {
   var userID = value.getUint8(10);
 
   var weightInput = document.getElementById("weightInput");
-  console.log("weightInput: "+ weightInput)
+  console.log("weightInput: "+ weightInput.getValue)
 
   //console.log(timeConverter(unix_timestamp));
   weightReading = ((weightReading_high & 0xFF) << 8) | (weightReading_low & 0xFF);
@@ -162,7 +162,8 @@ function handleNotifications(event) {
     userID: userID, // update based on login info
     weight: weightReading,
     timestamp: (monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
-    battery: battStatus
+    battery: battStatus,
+    weightInput: stinrg(weightInput.getValue)
   }
   //ws.send(JSON.stringify(msg)); //send over websocket
 

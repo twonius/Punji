@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 from filterpy.kalman import KalmanFilter
 from filterpy.common import Q_discrete_white_noise
 
-from scipy.signal import butter,filtfilt
+from scipy.signal import butter,filtfilt,find_peaks
+import numpy as np 
 
 
 # Filter requirements.
