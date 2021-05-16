@@ -27,8 +27,8 @@ def butter_lowpass_filter(data, cutoff, fs, order):
     y = filtfilt(b, a, data)
     return y
 avg_window = 50
-days = 7 # window for data processing
-lag = int(20) # SAMPLES
+days = 2 # window for data processing
+lag = int(60) # SAMPLES
 
 readingWeight = []
 readingTime= []
@@ -44,7 +44,7 @@ sensordata = database.sensordatas
 gen_time = datetime.datetime.utcnow() - datetime.timedelta(days=days) 
 dummy_id = ObjectId.from_datetime(gen_time)
 
-query = {"userID" : 1, "_id" :{"$gte": dummy_id}}
+query = {"userID" : 3, "_id" :{"$gte": dummy_id}}
 fltr = {"_id" : 0, "userID" : 0, "weight" : 0, "battery" : 0, "timestamp": 1}
 
 for data in sensordata.find(query): 
@@ -57,10 +57,8 @@ plt.plot(readingTime,readingWeight)
 
 
 # Filter the data, and plot both the original and filtered signals.
-y = butter_lowpass_filter(readingWeight, cutoff, fs, order)
-
-
-plt.plot(readingTime,y,'r-')
+# y = butter_lowpass_filter(readingWeight, cutoff, fs, order)
+# plt.plot(readingTime,y,'r-')
 plt.show()
 
 # list is sorted so we can take the middle of the window range as the median 
@@ -72,10 +70,14 @@ plt.show()
 i=0
 
 while i < len(y)-lag: 
-    y_lag.append(y[i+lag]-y[i])
+    y_lag.append(y[i]-y[i+lag])
     i+=1
 
+y_lag_scalar = np.array(y_lag) # converts to scalar array so numpy can handle it 
+peaks, _ = find_peaks(y_lag_scalar,height=500, distance=50)
 
 plt.figure()
 plt.plot(y_lag)
+plt.plot(peaks, y_lag_scalar[peaks], "x")
 plt.show()
+

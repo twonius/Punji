@@ -52,7 +52,7 @@ function getDeviceInfo() {
   let options = {
 
     filters: [
-     { "name": deviceName,
+     {
      services: ['weight_scale','battery_service']
   }]
   }
