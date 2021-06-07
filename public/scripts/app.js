@@ -196,7 +196,7 @@ function handleNotifications(event) {
   var devDisp = document.getElementById("deviceID");
 
   var unit = "";
-  var weightReading_str = weightReading.toString();
+  var weightReading_str = weightReading.toString() + " : " + weightReading2.toString();
   if (battStatus == 999){
       var battReading_str = '- ';
   }else{
