@@ -161,7 +161,7 @@ function handleNotifications(event) {
   // build array to plot
   weightData.push(weightReading);
 
-  console.log('1: ' + weightReading.toString()+ ', 2 : '  + weightReading2.toString());
+  //console.log('1: ' + weightReading.toString()+ ', 2 : '  + weightReading2.toString());
 
   msg = {
     userID: userID, // update based on login info
