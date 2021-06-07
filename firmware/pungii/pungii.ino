@@ -46,7 +46,9 @@ const int numReadings = 100;
 
 int readings[2][numReadings];      // the readings from the analog input for both sensors
 int readIndex = 0;              // the index of the current reading
-int total = 0;                  // the running total
+int total1 = 0;                  // the running total
+int total2 = 0;                  // the running total
+
 int average = 0;                // the average
 
 int inputPin = A1;
@@ -83,7 +85,8 @@ BLEBas blebas;    // BAS (Battery Service) helper class instance
 BLEClientCts  bleCTime;
 
 
-uint16_t  weight = 70;
+uint16_t  weight1 = 70;
+uint16_t  weight2 = 70;
 
 void setup()  //************************************************************************************************************************
 {
@@ -105,7 +108,8 @@ void setup()  //****************************************************************
   
 
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    readings[thisReading] = 0;
+    readings[0][thisReading] = 0;
+    readings[1][thisReading] = 0; 
   }
 
   bleCTime.begin();
