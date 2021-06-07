@@ -164,7 +164,7 @@ function handleNotifications(event) {
   msg = {
     userID: userID, // update based on login info
     weight: weightReading,
-    weight2: weightReadign2,
+    weight2: weightReading2,
     timestamp: (monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
     battery: battStatus,
     weightInput: String(weightInput.value)
