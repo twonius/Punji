@@ -15,17 +15,22 @@
 #include "RTClib.h"
 #include "Adafruit_VL6180X.h"
 
-uint8_t deviceID = 4; // assigned in userID field. 
+uint8_t deviceID = 1; // assigned in userID field. 
+String deviceName_str = String("Spot WS "); 
+char deviceName[11];
 
-Adafruit_VL6180X vl = Adafruit_VL6180X();
 
+Adafruit_VL6180X vl1 = Adafruit_VL6180X(41);
+Adafruit_VL6180X vl2 = Adafruit_VL6180X(42);
+uint8_t address; 
+bool success = false; 
 
 // initialize Data buffer https://helloacm.com/how-do-you-design-a-circular-fifo-buffer-queue-in-c/
 #define BUFFER_SIZE 10000
 #define ERROR_EMPTY 0
 #define ERROR_FULL 0xFF
 
-const int packageSize = 11;
+const int packageSize = 13;
 uint8_t buffer[BUFFER_SIZE][packageSize]; //lenght needs to be 6 to include timestamp
 int head = 0, tail = 0;
 
@@ -39,7 +44,7 @@ uint32_t tstamp;
 // moving average setup 
 const int numReadings = 100;
 
-int readings[numReadings];      // the readings from the analog input
+int readings[2][numReadings];      // the readings from the analog input for both sensors
 int readIndex = 0;              // the index of the current reading
 int total = 0;                  // the running total
 int average = 0;                // the average
@@ -84,6 +89,9 @@ void setup()  //****************************************************************
 {
   Serial.begin(115200);
 
+  
+  
+
   // button and LED for advertising trigger after timeout. Timeout was enabled to save battery when not connected 
   pinMode(LED_BLUE, OUTPUT);
   pinMode(7, INPUT);
@@ -110,8 +118,12 @@ void setup()  //****************************************************************
   Bluefruit.begin();
 
   // Set the advertised device name (keep it short!)
-  Serial.println("Setting Device Name to 'Spot WS'");
-  Bluefruit.setName("Spot WS");
+
+  Serial.println(deviceName_str);
+  deviceName_str.toCharArray(deviceName,10);
+  Serial.print("Setting Device Name to ");
+  Serial.println(deviceName);
+  Bluefruit.setName(deviceName);
 
   // Set the connect/disconnect callback handlers
   Bluefruit.Periph.setConnectCallback(connect_callback);
@@ -140,9 +152,23 @@ void setup()  //****************************************************************
   Serial.println("Ready Player One!!!");
   Serial.println("\nAdvertising");
 
-  vl.begin();
-     
-  delay(5000); // BAD PROGRAMMING, should use callback to say when notifications are ready 
+  Serial.println("Connect Sensor 1");
+  delay(5000);
+  if (! vl1.begin()) {
+    Serial.println("Failed to find sensor 1");
+    while (1);
+  }
+  Serial.println("Sensor 1 found!");
+
+  Serial.println("Connect Sensor 2");
+  delay(5000);
+  if (! vl2.begin()) {
+    Serial.println("Failed to find sensor 2");
+    while (1);
+  }
+  Serial.println("Sensor 2 found!");
+
+   delay(5000); // BAD PROGRAMMING, should use callback to say when notifications are ready 
 }
 
 void startAdv(void)
@@ -446,11 +472,15 @@ void loop()
     // moving average code 
       for (int i = 0; i <= numReadings; i++) {
           // subtract the last reading:
-        total = total - readings[readIndex];
+        total1 = total1 - readings[0][readIndex];
+        total2 = total2 - readings[1][readIndex];
+
           // read from the sensor:
-        readings[readIndex] = vl.readRange();
+        readings[0][readIndex] = vl1.readRange();
+        readings[1][readIndex] = vl2.readRange();
           // add the reading to the total:
-        total = total + readings[readIndex];
+        total1 = total1 + readings[0][readIndex];
+        total2 = total2 + readings[1][readIndex];
           // advance to the next position in the array:
         readIndex = readIndex + 1;
 
@@ -462,13 +492,21 @@ void loop()
         delay(20);
       }
       // calculate the average:
-      weight = total *100 / numReadings;
+      weight1 = total1 *100 / numReadings;
+      weight2 = total2 *100 / numReadings; 
 
       //get unix timestamp 
       DateTime now = rtc.now();
       tstamp = now.unixtime();
       Serial.print("Unix Timestamp: ");
       Serial.println(tstamp,HEX);
+
+      
+      Serial.print("Sensor 1: ");
+      Serial.println(vl1.readRange());
+      Serial.print("Sensor 2: ");
+      Serial.println(vl2.readRange());
+      
 
 
       // update battery status
@@ -494,7 +532,7 @@ void loop()
 
       Serial.printf("y1: %i , y2: %i, y:%u \n",y1,y2,y);
       
-      uint8_t packet[packageSize]  = {0b00000110,lowByte(weight), highByte(weight),y2, y1,m,d,h,mm,s,deviceID};
+      uint8_t packet[packageSize]  = {0b00000110,lowByte(weight1), highByte(weight1),lowByte(weight2), highByte(weight2),y2, y1,m,d,h,mm,s,deviceID};
       //write package to buffer
       fifoWrite(packet); //write values to the buffer
   Serial.print("deviceID: "); 
@@ -567,4 +605,16 @@ void loop()
   // this is where better sleep logic would come in
 
   delay(5000);
+}
+
+void buttonWait(){
+  int buttonState = 0;
+  Serial.println("Waiting for USR Button Press...");
+  while(1){
+    buttonState = digitalRead(buttonPin);
+    if (buttonState == LOW) {
+       Serial.println("button pressed");
+       return;
+    }
+  }
 }

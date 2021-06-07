@@ -140,20 +140,23 @@ function handleNotifications(event) {
   var setup = value.getUint8();
   var weightReading_low = value.getUint8(1);
   var weightReading_high = value.getUint8(2);
-  var y2 = value.getUint8(3);
-  var y1 = value.getUint8(4);
-  var month = value.getUint8(5);
-  var day = value.getUint8(6);
-  var hour = value.getUint8(7);
-  var minute = value.getUint8(8);
-  var second = value.getUint8(9);
-  var userID = value.getUint8(10);
+  var weightReading2_low = value.getUint8(3);
+  var weightReading2_high = value.getUint8(4);
+  var y2 = value.getUint8(5);
+  var y1 = value.getUint8(6);
+  var month = value.getUint8(7);
+  var day = value.getUint8(8);
+  var hour = value.getUint8(9);
+  var minute = value.getUint8(10);
+  var second = value.getUint8(11);
+  var userID = value.getUint8(12);
 
   var weightInput = document.getElementById("weightInput");
 
 
   //console.log(timeConverter(unix_timestamp));
   weightReading = ((weightReading_high & 0xFF) << 8) | (weightReading_low & 0xFF);
+  weightReading2 = ((weightReading2_high & 0xFF) << 8) | (weightReading2_low & 0xFF);
   year = ((y1 & 0xFF)<< 8 ) | (y2 & 0xFF);
   // build array to plot
   weightData.push(weightReading);
@@ -161,6 +164,7 @@ function handleNotifications(event) {
   msg = {
     userID: userID, // update based on login info
     weight: weightReading,
+    weight2: weightReadign2,
     timestamp: (monthNames[month-1] + " " + String(day) + " " + String(year) + " , " + String(hour) + ":" + String(minute) + ":" + String(second)),
     battery: battStatus,
     weightInput: String(weightInput.value)
