@@ -17,7 +17,7 @@
     "isomorphic-ws": "^4.0.1",
     "jquery": "^3.5.1",
     "method-override": "^3.0.0",
-    "moment": "^2.27.0",
+    "moment": "^2.29.2",
     "mongodb": "^3.5.9",
     "mongoose": "^5.9.19",
     "parser": "^0.1.4",
